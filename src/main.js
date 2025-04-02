@@ -2,16 +2,13 @@ import { playAudio } from "./utils.js";
 
 console.log('---- main.js');
 
-const a = playAudio('test', './generative_audio_test.ogg', .5, false, false);
-
+const a = playAudio('test', './gregorian_chant.mp3', .5, false, false);
 
 const playBtn = document.getElementById('playBtn');
 playBtn.addEventListener('click', _ => {
     console.log(a);
     a.audio.play();
 })
-
-
 
 import * as THREE from 'three';
 
@@ -22,26 +19,44 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+const color = 0xFFFFFF;
+const intensity = 1;
+const light = new THREE.AmbientLight(color, intensity);
+scene.add(light);
+
+
+const numberOfCubes = 512;
+const boxWidth = .01;
+
+let cubes = [];
+for (let i = 0; i < numberOfCubes; i++) {
+    const geometry = new THREE.BoxGeometry(boxWidth, .1, .1);
+    const material = new THREE.MeshLambertMaterial({ color: 0x009900 });
+    const cube = new THREE.Mesh(geometry, material);
+    cube.material.color.b = i / numberOfCubes;
+    // cube.position.z = -i;
+    cube.position.x = (i * boxWidth) - 2;
+    scene.add(cube);
+    cubes.push(cube)
+}
 
 camera.position.z = 5;
 
-
-
-
 function update() {
-
     a.analyser?.getByteFrequencyData(a.data);
     // console.log(a.data);
 
+    cubes.forEach((cube, i) => {
+        const val = a.data[i] / 256;
+        // console.log(val);
+        cube.position.y = val * 4;
+        cube.material.color.r = val;
+        cube.rotation.y = Math.PI * .5 * val;
+        // cube.material.needsUpdate = true;
+    })
 
     renderer.render(scene, camera);
-    // requestAnimationFrame(update)
 }
 renderer.setAnimationLoop(update);
-
 
 update();
