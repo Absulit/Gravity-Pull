@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<html>
+
+<head>
+    <title></title>
+    <script type="importmap">
+            {
+              "imports": {
+                "points": "./src/points/absulit.points.module.js",
+
+                "datasize": "./src/points/data-size.js",
+                "renderpass": "./src/points/RenderPass.js",
+                "shadertype": "./src/points/ShaderType.js",
+
+                "animation": "./src/points/core/animation.js",
+                "audio": "./src/points/core/audio.js",
+                "color": "./src/points/core/color.js",
+                "debug": "./src/points/core/debug.js",
+                "effects": "./src/points/core/effects.js",
+                "image": "./src/points/core/image.js",
+                "math": "./src/points/core/math.js",
+                "noise2d": "./src/points/core/noise2d.js",
+                "classicnoise2d": "./src/points/core/classicnoise2d.js",
+                "random": "./src/points/core/random.js",
+                "renderpasses": "./src/points/RenderPasses.js",
+                "sdf": "./src/points/core/sdf.js",
+
+                "datgui": "./src/points/vendor/datgui/dat.gui.module.js"
+              }
+            }
+        </script>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script src="./src/points/vendor/stats.js"></script>
+    <script src="./src/points/vendor/ccapture/CCapture.all.min.js"></script>
+    <script type="module" src="src/main.js"></script>
+</head>
+
+<body>
+    <canvas id="gl-canvas" width="800" height="800">
+        Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+
+
+</body>
+
+</html>
