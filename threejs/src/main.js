@@ -2,7 +2,7 @@ import { playAudio } from "./utils.js";
 
 console.log('---- main.js');
 
-const a = playAudio('test', './gregorian_chant.mp3', .5, false, false);
+const a = playAudio('test', './../gregorian_chant.mp3', .5, false, false);
 
 const playBtn = document.getElementById('playBtn');
 playBtn.addEventListener('click', _ => {
