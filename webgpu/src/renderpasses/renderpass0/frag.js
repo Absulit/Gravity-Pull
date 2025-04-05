@@ -1,6 +1,6 @@
 import { fnusin } from 'animation';
 import { texturePosition } from 'image';
-import { rotateVector, TAU } from 'math';
+import { PI, rotateVector, TAU } from 'math';
 import { snoise } from 'noise2d';
 import { sdfCircle, sdfLine2, sdfSegment } from 'sdf';
 
@@ -14,6 +14,7 @@ ${snoise}
 ${sdfCircle}
 ${rotateVector}
 ${TAU}
+${PI}
 
 @fragment
 fn main(
@@ -34,8 +35,9 @@ fn main(
 
     // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvr  * vec2f(1, s), true);
 
-    let uvrRotate = rotateVector(uvr, (params.time * .001 * audioX) % TAU);
-    let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvrRotate  / vec2f(1, 1.01), true);
+    let center = vec2(.5) * ratio;
+    let uvrRotate = rotateVector(uvr - center, PI * .001) + center;
+    let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvrRotate / vec2f(1.01, 1.01), true);
 
 
 
