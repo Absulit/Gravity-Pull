@@ -6,11 +6,34 @@ import RenderPass from 'renderpass';
 import frag0 from './renderpasses/renderpass0/frag.js';
 import vert from './renderpasses/renderpass0/vert.js';
 
+import * as dat from 'datgui';
+
+
+
+
 // reference the canvas in the constructor
 /**
  * @type {Points}
  */
 const points = new Points('canvas');
+const gui = new dat.GUI({ name: 'Points GUI' });
+const folder = gui.addFolder('options');
+
+const options = {
+    sliderA: 0.619,
+    sliderB: 0.861,
+    sliderC: 0.508,
+}
+
+points.setUniform('sliderA', options.sliderA);
+points.setUniform('sliderB', options.sliderB);
+points.setUniform('sliderC', options.sliderC);
+
+
+folder.add(options, 'sliderA', -1, 1, .0001).name('sliderA');
+folder.add(options, 'sliderB', -1, 1, .0001).name('sliderB');
+folder.add(options, 'sliderC', -1, 1, .0001).name('sliderC');
+folder.open();
 
 
 
@@ -45,6 +68,10 @@ update();
 
 // call `points.update()` methods to render a new frame
 function update() {
+    points.setUniform('sliderA', options.sliderA);
+    points.setUniform('sliderB', options.sliderB);
+    points.setUniform('sliderC', options.sliderC);
+
     points.update();
     requestAnimationFrame(update);
 }
