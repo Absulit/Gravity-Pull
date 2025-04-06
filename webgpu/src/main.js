@@ -31,30 +31,28 @@ let volume = 1;
 let loop = true;
 function playSong(){
     audio && audio.pause() && (audio = null)
-    audio = points.setAudio('audio', this.src, volume, loop, false);
+    audio = points.setAudio('audio', this.src, audio.volume, loop, false);
     audio.play();
 }
 
 const songs = [
     {
-        name: 'Pulse',
+        name: 'Pulse 🎵',
         src: './../80s-pulse-synthwave-dude-212407.mp3',
         valume: 1,
         fn: playSong
     },
     {
-        name: 'Robot Swarm',
+        name: 'Robot Swarm 🎵',
         src: './../synthwave-80s-robot-swarm-218092.mp3',
         valume: 1,
         fn: playSong
     },
     {
-        name: 'Fading Echoes',
+        name: 'Fading Echoes 🎵',
         src: './../mezhdunami-fading-echoes-129291.mp3',
         valume: 1,
         fn: playSong
-
-
     }
 ]
 
