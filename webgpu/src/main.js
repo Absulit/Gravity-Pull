@@ -59,7 +59,7 @@ const renderPasses = [
 // call the POINTS init method and then the update method
 await points.init(renderPasses);
 
-// points.fitWindow = true;
+points.fitWindow = true;
 
 update();
 

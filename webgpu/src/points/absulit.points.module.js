@@ -1755,6 +1755,7 @@ export default class Points {
             }
         });
     }
+    #bigger = 0
     async update() {
         if (!this.#canvas || !this.#device) return;
         //--------------------------------------------
@@ -1783,6 +1784,19 @@ export default class Points {
         // this.#analyser.getByteTimeDomainData(this.#dataArray);
         this.#sounds.forEach(sound => {
             sound.analyser?.getByteFrequencyData(sound.data);
+            // let i = sound.data.length
+            // while (i-- > 0) {
+            //     const d = sound.data[i];
+            //     // console.log(i);
+
+            //     if(d != 0){
+            //         if (i > this.#bigger){
+            //             this.#bigger = i;
+            //             console.log(i);
+            //         }
+            //         break;
+            //     }
+            // }
         });
         // END AUDIO
         this.#texturesExternal.forEach(externalTexture => {

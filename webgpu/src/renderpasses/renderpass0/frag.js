@@ -27,11 +27,12 @@ fn main(
 ) -> @location(0) vec4f {
 
     // params.audioLength 1024
-    let audioX = audio.data[ u32(uvr.x * 800)] / 256;
-    let audio0 = audio.data[ u32(.5 * 800)] / 256;
+    let audioLength = 826.; // 800. 826. 550.
+    let audioX = audio.data[ u32(uv.x * audioLength)] / 256;
+    // let audio0 = audio.data[ u32(.5 * audioLength)] / 256;
 
     let n = snoise(uvr * 2 + params.time * .01);
-    let s = sdfCircle(.5 * ratio, .5 * audio0, .1, uvr);
+    // let s = sdfCircle(.5 * ratio, .5 * audio0, .1, uvr);
     let t = sdfCircle(.5 * ratio, .1, .00001, -uvr);
 
     // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvr  * vec2f(1, s), true);
@@ -48,6 +49,7 @@ fn main(
     let height = 0.;
     // let uvrRotateLine = rotateVector(uvr, params.time * .01);
     let l = sdfLine2(vec2(0, height + audioX) * ratio, vec2(1, height + audioX) * ratio, .005, uvr);
+    // let l = sdfLine2(vec2(0.01, .5) * ratio, vec2(.99, .5) * ratio, .005, uvr);
 
     let finalColor = vec4f(l,l*audioX, l*uvrRotate.x, 1) + feedbackColor * .98;
     // let finalColor = vec4f(1,s,0,1);
