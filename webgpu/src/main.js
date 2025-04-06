@@ -25,9 +25,57 @@ const options = {
     sliderC: 0.508,
 }
 
+let audio = null;
+
+let volume = 1;
+let loop = true;
+function playSong(){
+    audio && audio.pause() && (audio = null)
+    audio = points.setAudio('audio', this.src, volume, loop, false);
+    audio.play();
+}
+
+const songs = [
+    {
+        name: 'Pulse',
+        src: './../80s-pulse-synthwave-dude-212407.mp3',
+        valume: 1,
+        fn: playSong
+    },
+    {
+        name: 'Robot Swarm',
+        src: './../synthwave-80s-robot-swarm-218092.mp3',
+        valume: 1,
+        fn: playSong
+    },
+    {
+        name: 'Fading Echoes',
+        src: './../mezhdunami-fading-echoes-129291.mp3',
+        valume: 1,
+        fn: playSong
+
+
+    }
+]
+
+
+
 Object.keys(options).forEach(key => {
     points.setUniform(key, options[key]);
     folder.add(options, key, -1, 1, .0001).name(key);
+})
+
+// Create an object with the function you want to trigger
+const actions = {
+    triggerFunction: e => {
+        // Your custom logic here
+        console.log('Action executed.', this);
+    }
+};
+
+// Add a clickable option to trigger the function
+songs.forEach(song => {
+    song.controller = gui.add(song, 'fn').name(song.name);
 })
 
 folder.open();
@@ -38,16 +86,15 @@ points.setSampler('imageSampler', null);
 points.setTexture2d('feedbackTexture', true);
 
 
-let volume = 1;
-let loop = true;
-// const audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', volume, loop, false);
+
+audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', volume, loop, false);
 // const audio = points.setAudio('audio', './../synthwave-80s-robot-swarm-218092.mp3', volume, loop, false);
-const audio = points.setAudio('audio', './../mezhdunami-fading-echoes-129291.mp3', volume, loop, false);
+// const audio = points.setAudio('audio', './../mezhdunami-fading-echoes-129291.mp3', volume, loop, false);
 
 // points.addEventListener('click_event', data => {
 //     audio.play();
 // }, 4);
-audio.play();
+// audio.play();
 points.setStorage('result', 'array<f32, 10>', 4);
 
 
