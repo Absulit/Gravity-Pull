@@ -29,10 +29,34 @@ let audio = null;
 
 let volume = 1;
 let loop = true;
-function playSong(){
+function playSong() {
     audio && audio.pause() && (audio = null)
     audio = points.setAudio('audio', this.src, audio.volume, loop, false);
     audio.play();
+}
+
+function loadSong() {
+    // Dynamically create a hidden file input element
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'audio/mp3, audio/flac, audio/ogg';
+
+    // Listen for the file selection
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const audioUrl = URL.createObjectURL(file);
+
+            audio && audio.pause() && (audio = null)
+            audio = points.setAudio('audio', audioUrl, 1, false, false);
+            audio.play();
+
+            console.log('Now playing:', file.name);
+        }
+    });
+
+    // Trigger the file input click programmatically
+    fileInput.click();
 }
 
 const songs = [
@@ -53,8 +77,15 @@ const songs = [
         src: './../mezhdunami-fading-echoes-129291.mp3',
         valume: 1,
         fn: playSong
+    },
+    {
+        name: 'Load a song',
+        fn: loadSong
     }
 ]
+songs.forEach(song => {
+    song.controller = gui.add(song, 'fn').name(song.name);
+})
 
 
 
@@ -63,18 +94,8 @@ Object.keys(options).forEach(key => {
     folder.add(options, key, -1, 1, .0001).name(key);
 })
 
-// Create an object with the function you want to trigger
-const actions = {
-    triggerFunction: e => {
-        // Your custom logic here
-        console.log('Action executed.', this);
-    }
-};
 
-// Add a clickable option to trigger the function
-songs.forEach(song => {
-    song.controller = gui.add(song, 'fn').name(song.name);
-})
+
 
 folder.open();
 

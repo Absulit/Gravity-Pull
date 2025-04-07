@@ -29,17 +29,17 @@ fn main(
     // params.audioLength 1024
     let audioLength = 826.; // 800. 826. 550.
     let audioX = audio.data[ u32(uv.x * audioLength)] / 256;
-    // let audio0 = audio.data[ u32(.5 * audioLength)] / 256;
+    let audio0 = audio.data[ u32(.5 * audioLength)] / 256;
 
     let n = snoise(uvr * 2 + params.time * .01);
-    // let s = sdfCircle(.5 * ratio, .5 * audio0, .1, uvr);
+    let s = sdfCircle(.5 * ratio, .5 * audio0, .1 * audioX, uvr);
     let t = sdfCircle(.5 * ratio, .1, .00001, -uvr);
 
     // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvr  * vec2f(1, s), true);
 
     let center = vec2(.5) * ratio;
-    let uvrRotate = rotateVector(uvr - center, PI * .001) + center; // option 1
-    // let uvrRotate = rotateVector(uvr - center, s) + center; // option 2
+    // let uvrRotate = rotateVector(uvr - center, PI * .001) + center; // option 1
+    let uvrRotate = rotateVector(uvr - center, s) + center; // option 2
 
     // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvrRotate / vec2f(1.01 * s, 1.01 / s) , true);
     let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvrRotate / vec2f(1, 1.01), true);
