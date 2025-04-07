@@ -36,18 +36,16 @@ function playSong() {
 }
 
 function loadSong() {
-    // Dynamically create a hidden file input element
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'audio/mp3, audio/flac, audio/ogg';
 
-    // Listen for the file selection
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
+    fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
         if (file) {
             const audioUrl = URL.createObjectURL(file);
 
-            audio && audio.pause() && (audio = null)
+            audio && audio.pause() && (audio = null);
             audio = points.setAudio('audio', audioUrl, 1, false, false);
             audio.play();
 
@@ -55,7 +53,6 @@ function loadSong() {
         }
     });
 
-    // Trigger the file input click programmatically
     fileInput.click();
 }
 
@@ -107,25 +104,25 @@ points.setTexture2d('feedbackTexture', true);
 
 
 audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', volume, loop, false);
-// const audio = points.setAudio('audio', './../synthwave-80s-robot-swarm-218092.mp3', volume, loop, false);
-// const audio = points.setAudio('audio', './../mezhdunami-fading-echoes-129291.mp3', volume, loop, false);
 
-// points.addEventListener('click_event', data => {
-//     audio.play();
-// }, 4);
-// audio.play();
-points.setStorage('result', 'array<f32, 10>', 4);
+// points.setStorage('result', 'array<f32, 10>', 4);
+points.setUniform('rand', 0);
+// points.setStorage('rand_value', 'vec2f');
+// points.setUniform('time_flag', 0)
 
-
-// create your render pass with three shaders as follow
 const renderPasses = [
     new RenderPass(vert, frag0, null),
 ];
 
-// call the POINTS init method and then the update method
 await points.init(renderPasses);
 
 points.fitWindow = true;
+
+setInterval(_ => {
+    console.log('---- 10s');
+    points.setUniform('rand', Math.random());
+}, 10000)
+
 
 update();
 
