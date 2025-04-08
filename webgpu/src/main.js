@@ -25,6 +25,13 @@ const options = {
     sliderC: 0.508,
 }
 
+function strToCodes(str){
+    return Array.from(str).map(char => char.charCodeAt(0))
+}
+
+console.log(strToCodes('ABC'));
+
+
 let audio = null;
 
 let volume = 1;
@@ -32,6 +39,7 @@ let loop = true;
 function playSong() {
     audio && audio.pause() && (audio = null)
     audio = points.setAudio('audio', this.src, audio.volume, loop, false);
+    points.setStorageMap('chars', strToCodes(this.name));
     audio.play();
 }
 
@@ -47,6 +55,7 @@ function loadSong() {
 
             audio && audio.pause() && (audio = null);
             audio = points.setAudio('audio', audioUrl, 1, false, false);
+            points.setStorageMap('chars', strToCodes(file.name));
             audio.play();
 
             console.log('Now playing:', file.name);
@@ -110,6 +119,8 @@ points.setUniform('rand', 0);
 // points.setStorage('rand_value', 'vec2f');
 // points.setUniform('time_flag', 0)
 await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
+// points.setStorage('chars', 'array<u32, 6>');
+points.setStorageMap('chars', [15,14,8,13,19,18],'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 
 const renderPasses = [
     new RenderPass(vert, frag0, null),
@@ -131,7 +142,7 @@ update();
 function update() {
 
     Object.keys(options).forEach(key => points.setUniform(key, options[key]));
-
+    // points.setStorageMap('chars', [2,14,8,13,19,18])
     points.update();
     requestAnimationFrame(update);
 }

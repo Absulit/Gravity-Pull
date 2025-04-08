@@ -18,7 +18,8 @@ ${sprite}
 ${TAU}
 ${PI}
 
-const NUMCHARS = 6;
+const NUMCHARS = 32;
+const MAXBITS = 256;
 
 @fragment
 fn main(
@@ -34,10 +35,10 @@ fn main(
 
     // params.audioLength 1024
     let audioLength = 826.; // 800. 826. 550.
-    let audioX = audio.data[ u32(uv.x * audioLength)] / 256;
-    let audio0 = audio.data[ u32(.5 * audioLength)] / 256;
-    let audio1 = audio.data[ u32(.9 * audioLength)] / 256;
-    let audio2 = audio.data[ u32(0 * audioLength)] / 256;
+    let audioX = audio.data[ u32(uv.x * audioLength)] / MAXBITS;
+    let audio0 = audio.data[ u32(.5 * audioLength)] / MAXBITS;
+    let audio1 = audio.data[ u32(.9 * audioLength)] / MAXBITS;
+    let audio2 = audio.data[ u32(0 * audioLength)] / MAXBITS;
 
     let maxCircleRadius = .9;
 
@@ -85,19 +86,18 @@ fn main(
     let dy = pixelsHeight * (1. / params.screen.y);
     let pixeleduv = vec2(dx*floor( uvr.x / dx), dy * floor( uvr.y / dy));
 
-    let fontPosition = vec2(0.,0.);
+    let fontPosition = vec2(.003, 0.) * ratio;
     let charSize = vec2(8u,22u);
     let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
     let charAIndex = 33u; // A
 
-    let chars = array<u32, NUMCHARS>(15,14,8,13,19,18);
-    // let fontColor = texturePosition(font, imageSampler, fontPosition, uvr, false);
+    // let chars = array<u32, NUMCHARS>(15,14,8,13,19,18);
     var stringColor = vec4(0.);
     for (var index = 0; index < NUMCHARS; index++) {
-        let charIndex = chars[index];
+        let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(f32(index), 0);
         let space = .001 * vec2(f32(index), 0);
-        stringColor += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / 4, charAIndex + charIndex, charSize);
+        stringColor += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / (4 + 2 * audio2), charAIndex + charIndex - 65, charSize) * .08;
     }
 
 
@@ -114,7 +114,7 @@ fn main(
 
 
 
-    let finalColor = (stringColor + vec4f(l,l*audioX, l*uvrRotate.x, 1)) * .5 + feedbackColor * .98;
+    let finalColor = vec4f(l,l*audioX, l*uvrRotate.x, 1) + feedbackColor * .98 + (stringColor * vec4f(1,.5, 0, 1));
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
