@@ -97,7 +97,7 @@ fn main(
         let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(f32(index), 0);
         let space = .001 * vec2(f32(index), 0);
-        stringColor += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / (4 + 2 * audio2), charAIndex + charIndex - 65, charSize) * .08;
+        stringColor += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * audio2), charAIndex + charIndex - 65, charSize) * .08;
     }
 
 
