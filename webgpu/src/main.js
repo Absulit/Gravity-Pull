@@ -109,6 +109,7 @@ audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', vol
 points.setUniform('rand', 0);
 // points.setStorage('rand_value', 'vec2f');
 // points.setUniform('time_flag', 0)
+await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
 
 const renderPasses = [
     new RenderPass(vert, frag0, null),

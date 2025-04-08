@@ -1,5 +1,5 @@
 import { fnusin } from 'animation';
-import { texturePosition } from 'image';
+import { sprite, texturePosition } from 'image';
 import { PI, rotateVector, TAU } from 'math';
 import { snoise } from 'noise2d';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'sdf';
@@ -14,8 +14,11 @@ ${snoise}
 ${sdfCircle}
 ${sdfSquare}
 ${rotateVector}
+${sprite}
 ${TAU}
 ${PI}
+
+const NUMCHARS = 6;
 
 @fragment
 fn main(
@@ -36,10 +39,12 @@ fn main(
     let audio1 = audio.data[ u32(.9 * audioLength)] / 256;
     let audio2 = audio.data[ u32(0 * audioLength)] / 256;
 
+    let maxCircleRadius = .9;
+
     let n = snoise(uvr * 2 + params.time * .01);
-    let s = sdfCircle(.5 * ratio, .5 * audio0, .1 * audioX, uvr);
+    let s = sdfCircle(.5 * ratio, maxCircleRadius * audio0, .1 * audioX, uvr);
     let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
-    let sq = sdfSquare(vec2(.5) * ratio, .5 * audio0, .1 * audio0, TAU * audio1, uvr);
+    let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * audio0, .1 * audio0, TAU * audio1, uvr);
 
     // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvr  * vec2f(1, s), true);
 
@@ -70,7 +75,46 @@ fn main(
     let l = sdfLine2(vec2(0, height + audioX) * ratio, vec2(1, height + audioX) * ratio, .005, uvr);
     // let l = sdfLine2(vec2(0.01, .5) * ratio, vec2(.99, .5) * ratio, .005, uvr);
 
-    let finalColor = vec4f(l,l*audioX, l*uvrRotate.x, 1) + feedbackColor * .98;
+
+    let numColumns = 400. * 1; //params.sliderA;
+    let numRows = 400. * 1; //params.sliderB;
+
+    let pixelsWidth = params.screen.x / numColumns;
+    let pixelsHeight = params.screen.y / numRows;
+    let dx = pixelsWidth * (1. / params.screen.x);
+    let dy = pixelsHeight * (1. / params.screen.y);
+    let pixeleduv = vec2(dx*floor( uvr.x / dx), dy * floor( uvr.y / dy));
+
+    let fontPosition = vec2(0.,0.);
+    let charSize = vec2(8u,22u);
+    let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
+    let charAIndex = 33u; // A
+
+    let chars = array<u32, NUMCHARS>(15,14,8,13,19,18);
+    // let fontColor = texturePosition(font, imageSampler, fontPosition, uvr, false);
+    var stringColor = vec4(0.);
+    for (var index = 0; index < NUMCHARS; index++) {
+        let charIndex = chars[index];
+        let charPosition = charSizeF32 * vec2(f32(index), 0);
+        let space = .001 * vec2(f32(index), 0);
+        stringColor += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / 4, charAIndex + charIndex, charSize);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let finalColor = (stringColor + vec4f(l,l*audioX, l*uvrRotate.x, 1)) * .5 + feedbackColor * .98;
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
