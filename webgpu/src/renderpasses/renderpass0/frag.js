@@ -92,7 +92,7 @@ fn main(
     let fontPosition = vec2(.003, 0.) * ratio;
     let charSize = vec2(8u,22u);
     let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
-    let charAIndex = 33u; // A
+    let charAIndex = 32u; // A is 33
 
     // let chars = array<u32, NUMCHARS>(15,14,8,13,19,18);
     var stringMask = 0.;
@@ -100,21 +100,11 @@ fn main(
         let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(f32(index), 0);
         let space = .002261 * vec2(f32(index), 0);
-        stringMask += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * audio2), charAIndex + charIndex - 65, charSize).x;
+        stringMask += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * audio2), charIndex - charAIndex, charSize).x;
     }
 
     // stringMask = vec4( stringMask.xyz, stringMask.x);
     let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), audio2);
-
-
-
-
-
-
-
-
-
-
 
 
 
