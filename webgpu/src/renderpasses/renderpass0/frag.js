@@ -1,4 +1,5 @@
-import { fnusin } from 'animation';
+import { fnusin, fusin } from 'animation';
+import { layer } from 'color';
 import { sprite, texturePosition } from 'image';
 import { PI, rotateVector, TAU } from 'math';
 import { snoise } from 'noise2d';
@@ -17,8 +18,10 @@ ${rotateVector}
 ${sprite}
 ${TAU}
 ${PI}
+${layer}
+${fusin}
 
-const NUMCHARS = 32;
+const NUMCHARS = 128;
 const MAXBITS = 256;
 
 @fragment
@@ -92,14 +95,16 @@ fn main(
     let charAIndex = 33u; // A
 
     // let chars = array<u32, NUMCHARS>(15,14,8,13,19,18);
-    var stringColor = vec4(0.);
+    var stringMask = 0.;
     for (var index = 0; index < NUMCHARS; index++) {
         let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(f32(index), 0);
-        let space = .001 * vec2(f32(index), 0);
-        stringColor += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * audio2), charAIndex + charIndex - 65, charSize) * .08;
+        let space = .002261 * vec2(f32(index), 0);
+        stringMask += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * audio2), charAIndex + charIndex - 65, charSize).x;
     }
 
+    // stringMask = vec4( stringMask.xyz, stringMask.x);
+    let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), audio2);
 
 
 
@@ -114,7 +119,7 @@ fn main(
 
 
 
-    let finalColor = vec4f(l,l*audioX, l*uvrRotate.x, 1) + feedbackColor * .98 + (stringColor * vec4f(1,.5, 0, 1));
+    let finalColor =  layer(vec4f(l,l*audioX, l*uvrRotate.x, 1) + feedbackColor * .98, stringColor);
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
