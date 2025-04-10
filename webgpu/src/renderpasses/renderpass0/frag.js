@@ -23,6 +23,14 @@ ${fusin}
 
 const NUMCHARS = 128;
 const MAXBITS = 256;
+const CHLEN = 0.125;
+
+fn pixelateUV(numColumns:f32, numRows:f32, uv:vec2f) -> vec2f {
+    let dx = 1 / numColumns;
+    let dy = 1 / numRows;
+    let coord = vec2(dx*floor( uv.x / dx), dy * floor( uv.y / dy));
+    return coord;
+}
 
 @fragment
 fn main(
@@ -43,6 +51,16 @@ fn main(
     let audio1 = audio.data[ u32(.9 * audioLength)] / MAXBITS;
     let audio2 = audio.data[ u32(0 * audioLength)] / MAXBITS;
 
+    // CHANNELS
+    let c0 = audio.data[ 0 ] / MAXBITS;
+    let c1 = audio.data[ u32(CHLEN * 1 * audioLength)] / MAXBITS;
+    let c2 = audio.data[ u32(CHLEN * 2 * audioLength)] / MAXBITS;
+    let c3 = audio.data[ u32(CHLEN * 3 * audioLength)] / MAXBITS;
+    let c4 = audio.data[ u32(CHLEN * 4 * audioLength)] / MAXBITS;
+    let c5 = audio.data[ u32(CHLEN * 5 * audioLength)] / MAXBITS;
+    let c6 = audio.data[ u32(CHLEN * 6 * audioLength)] / MAXBITS;
+    let c7 = audio.data[ u32(CHLEN * 7 * audioLength)] / MAXBITS;
+
     let maxCircleRadius = .9;
 
     let n = snoise(uvr * 2 + params.time * .01);
@@ -61,7 +79,13 @@ fn main(
     let uvrRotate0 = rotateVector(uvr - center, PI * .001) + center; // option 1
     let uvrRotate1 = rotateVector(uvr - center, s) + center; // option 2 s
     let uvrRotate2 = rotateVector(uvr - center, tsq) + center; // option 3 t sq
-    let uvrRotate = (uvrRotate0 + uvrRotate1 + uvrRotate2) / 3;
+
+    let uvrPixelated = pixelateUV(100, 100, uvr);
+
+    var uvrRotate = (uvrRotate0 + uvrRotate1 + uvrRotate2) / 3;
+    if(c7 > .2){
+        uvrRotate = (pixelateUV(100 * c1, 100 * c1, uvr) + (uvrRotate * 3)) / 4;
+    }
 
     // .98 .. 1.0198 X
     // .94 .. 1.02 Y
@@ -70,7 +94,9 @@ fn main(
     // let fadeRotate = vec2f(2 * params.sliderA, 1.01);
 
     // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvrRotate / vec2f(1.01 * s, 1.01 / s) , true);
-    let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvrRotate / fadeRotate, true);
+
+    let feedbackUV = uvrRotate / fadeRotate;
+    let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, true);
 
 
 
