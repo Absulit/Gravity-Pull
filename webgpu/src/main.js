@@ -1,23 +1,16 @@
-
-// import the `Points` class
-
 import Points from 'points';
 import RenderPass from 'renderpass';
 import frag0 from './renderpasses/renderpass0/frag.js';
 import vert from './renderpasses/renderpass0/vert.js';
-
 import * as dat from 'datgui';
 
-
-
-
-// reference the canvas in the constructor
 /**
  * @type {Points}
  */
 const points = new Points('canvas');
 const gui = new dat.GUI({ name: 'Points GUI' });
-const folder = gui.addFolder('options');
+const folderOptions = gui.addFolder('options');
+const folderSongs = gui.addFolder('songs');
 
 const options = {
     sliderA: 0.619,
@@ -29,11 +22,8 @@ function strToCodes(str){
     return Array.from(str).map(char => char.charCodeAt(0))
 }
 
-console.log(strToCodes('ABC'));
-
 
 let audio = null;
-
 let volume = 1;
 let loop = true;
 function playSong() {
@@ -90,36 +80,25 @@ const songs = [
     }
 ]
 songs.forEach(song => {
-    song.controller = gui.add(song, 'fn').name(song.name);
+    song.controller = folderSongs.add(song, 'fn').name(song.name);
 })
-
 
 
 Object.keys(options).forEach(key => {
     points.setUniform(key, options[key]);
-    folder.add(options, key, -1, 1, .0001).name(key);
+    folderOptions.add(options, key, -1, 1, .0001).name(key);
 })
 
-
-
-
-folder.open();
-
-
+folderOptions.open();
+folderSongs.open();
 
 points.setSampler('imageSampler', null);
 points.setTexture2d('feedbackTexture', true);
 
-
-
 audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', volume, loop, false);
 
-// points.setStorage('result', 'array<f32, 10>', 4);
 points.setUniform('rand', 0);
-// points.setStorage('rand_value', 'vec2f');
-// points.setUniform('time_flag', 0)
 await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
-// points.setStorage('chars', 'array<u32, 6>');
 points.setStorageMap('chars', [15,14,8,13,19,18],'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 
 const renderPasses = [
@@ -140,9 +119,7 @@ update();
 
 // call `points.update()` methods to render a new frame
 function update() {
-
     Object.keys(options).forEach(key => points.setUniform(key, options[key]));
-    // points.setStorageMap('chars', [2,14,8,13,19,18])
     points.update();
     requestAnimationFrame(update);
 }

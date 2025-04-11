@@ -92,9 +92,11 @@ fn main(
     // let fadeRotate = vec2f(1, .94 + (.08 * params.rand));
 
     let d = center - uvr;
+    let d2 = uvr - center;
     let len = length(d);
 
-    var fadeRotate = vec2f(1 + (.01 * params.rand), 1.01);
+    var fadeRotate = 1-d2 * 0.0151;
+    // var fadeRotate = vec2f(1 + (.01 * params.rand), 1.01);
     if(c6 > .3){
         fadeRotate = 1-d * 0.0151; // 0.0151 to reduce intensity of d
     }
