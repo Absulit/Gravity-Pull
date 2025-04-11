@@ -39,7 +39,15 @@ function playSong() {
     audio && audio.pause() && (audio = null)
     audio = points.setAudio('audio', this.src, audio.volume, loop, false);
     points.setStorageMap('chars', strToCodes(this.name));
+    audio.addEventListener('timeupdate', onTimeUpdate);
     audio.play();
+}
+
+
+
+function onTimeUpdate(){
+    const progress = (audio.currentTime / audio.duration) * 100;
+    console.log(`Progress: ${progress.toFixed(2)}%`);
 }
 
 function loadSong() {
@@ -79,6 +87,10 @@ const songs = [
     {
         name: 'Load a song 📀',
         fn: loadSong
+    },
+    {
+        name: 'Pause ⏸️',
+        fn: _ => audio?.pause()
     },
     {
         name: 'Pulse 🎵',
