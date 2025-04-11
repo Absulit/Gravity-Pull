@@ -63,7 +63,7 @@ fn main(
 
     let maxCircleRadius = .9;
 
-    let n = snoise(uvr * 2 + params.time * .01);
+    let n = (snoise(uvr * 2 - params.time * c4) + 1) * .5;
     let s = sdfCircle(.5 * ratio, maxCircleRadius * audio0, .1 * audioX, uvr);
     let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
     let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * audio0, .1 * audio0, TAU * audio1, uvr);
@@ -90,7 +90,15 @@ fn main(
     // .98 .. 1.0198 X
     // .94 .. 1.02 Y
     // let fadeRotate = vec2f(1, .94 + (.08 * params.rand));
-    let fadeRotate = vec2f(1 + (.01 * params.rand), 1.01);
+
+    let d = center - uvr;
+    let len = length(d);
+
+    var fadeRotate = vec2f(1 + (.01 * params.rand), 1.01);
+    if(c6 > .3){
+        fadeRotate = 1-d * 0.0151; // 0.0151 to reduce intensity of d
+    }
+
     // let fadeRotate = vec2f(2 * params.sliderA, 1.01);
 
     // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvrRotate / vec2f(1.01 * s, 1.01 / s) , true);
@@ -139,7 +147,7 @@ fn main(
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
-    // return vec4(params.rand,0, 0,1);
+    // return vec4(n);
 }
 `;
 
