@@ -130,7 +130,6 @@ fn main(
     let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
     let charOffset = 32u; // A is 33
 
-    // let chars = array<u32, NUMCHARS>(15,14,8,13,19,18);
     var stringMask = 0.;
     for (var index = 0; index < NUMCHARS; index++) {
         let charIndex = u32(chars[index]);
