@@ -46,8 +46,8 @@ function playSong() {
 
 
 function onTimeUpdate(){
-    const progress = (audio.currentTime / audio.duration) * 100;
-    console.log(`Progress: ${progress.toFixed(2)}%`);
+    const progress = (audio.currentTime / audio.duration);
+    points.setUniform('progress', progress);
 }
 
 function loadSong() {
@@ -153,6 +153,7 @@ points.setTexture2d('feedbackTexture', true);
 audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', volume, loop, false);
 
 points.setUniform('rand', 0);
+points.setUniform('progress', 0);
 await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
 points.setStorageMap('chars', [15, 14, 8, 13, 19, 18], 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 

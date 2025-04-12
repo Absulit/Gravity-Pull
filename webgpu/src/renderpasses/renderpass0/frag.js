@@ -1,5 +1,5 @@
 import { fnusin, fusin } from 'animation';
-import { layer } from 'color';
+import { layer, RED, WHITE } from 'color';
 import { sprite, texturePosition } from 'image';
 import { PI, rotateVector, TAU } from 'math';
 import { snoise } from 'noise2d';
@@ -20,6 +20,8 @@ ${TAU}
 ${PI}
 ${layer}
 ${fusin}
+${WHITE}
+${RED}
 
 const NUMCHARS = 128;
 const MAXBITS = 256;
@@ -42,7 +44,7 @@ fn main(
     @builtin(position) position: vec4f
 ) -> @location(0) vec4f {
 
-
+    let center = vec2(.5) * ratio;
 
     // params.audioLength 1024
     let audioLength = 826.; // 800. 826. 550.
@@ -75,10 +77,22 @@ fn main(
         tsq = sq;
     }
 
-    let center = vec2(.5) * ratio;
+
+    let d2 = center - uvr;
+    let d = uvr - center;
+    let len = length(d);
+    var fadeRotate = 1-d2 * 0.0151;
+    var rotDir = 1.;
+    if(c6 > .3){
+        rotDir = -1;
+        fadeRotate = 1-d * 0.0151; // 0.0151 to reduce intensity of d
+    }
+
+
+
     let uvrRotate0 = rotateVector(uvr - center, PI * .001) + center; // option 1
     let uvrRotate1 = rotateVector(uvr - center, s) + center; // option 2 s
-    let uvrRotate2 = rotateVector(uvr - center, tsq) + center; // option 3 t sq
+    let uvrRotate2 = rotateVector(uvr - center, tsq * rotDir) + center; // option 3 t sq
 
     let uvrPixelated = pixelateUV(100, 100, uvr);
 
@@ -87,23 +101,9 @@ fn main(
         uvrRotate = (pixelateUV(100 * c1, 100 * c1, uvr) + (uvrRotate * 3)) / 4;
     }
 
-    // .98 .. 1.0198 X
-    // .94 .. 1.02 Y
-    // let fadeRotate = vec2f(1, .94 + (.08 * params.rand));
 
-    let d = center - uvr;
-    let d2 = uvr - center;
-    let len = length(d);
 
-    var fadeRotate = 1-d2 * 0.0151;
-    // var fadeRotate = vec2f(1 + (.01 * params.rand), 1.01);
-    if(c6 > .3){
-        fadeRotate = 1-d * 0.0151; // 0.0151 to reduce intensity of d
-    }
 
-    // let fadeRotate = vec2f(2 * params.sliderA, 1.01);
-
-    // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvrRotate / vec2f(1.01 * s, 1.01 / s) , true);
 
     let feedbackUV = uvrRotate / fadeRotate;
     let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, true);
@@ -111,9 +111,7 @@ fn main(
 
 
     let height = 0.;
-    // let uvrRotateLine = rotateVector(uvr, params.time * .01);
     let l = sdfLine2(vec2(0, height + audioX) * ratio, vec2(1, height + audioX) * ratio, .005, uvr);
-    // let l = sdfLine2(vec2(0.01, .5) * ratio, vec2(.99, .5) * ratio, .005, uvr);
 
 
     let numColumns = 400. * 1; //params.sliderA;
@@ -138,13 +136,16 @@ fn main(
         stringMask += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * audio2), charIndex - charOffset, charSize).x;
     }
 
-    // stringMask = vec4( stringMask.xyz, stringMask.x);
     let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), audio2);
 
 
 
+    //progress bar
+    let audioWave = vec4f(l,l*audioX, l*uvrRotate.x, 1);
+    let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
+    let progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
 
-    let finalColor =  layer(vec4f(l,l*audioX, l*uvrRotate.x, 1) + feedbackColor * .98, stringColor);
+    let finalColor = layer( audioWave + progressBar + feedbackColor * .98, stringColor);
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
