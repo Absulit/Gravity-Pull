@@ -90,9 +90,7 @@ fn main(
     // params.audioLength 1024
     let audioLength = 826.; // 800. 826. 550.
     let audioX = audio.data[ u32(uv.x * audioLength)] / MAXBITS;
-    let audio0 = audio.data[ u32(.5 * audioLength)] / MAXBITS;
     let audio1 = audio.data[ u32(.9 * audioLength)] / MAXBITS;
-    let audio2 = audio.data[ u32(0 * audioLength)] / MAXBITS;
 
     // CHANNELS
     let c0 = audio.data[ 0 ] / MAXBITS;
@@ -107,9 +105,9 @@ fn main(
     let maxCircleRadius = .9;
 
     let n = (snoise(uvr * 2 - params.time * c4) + 1) * .5;
-    let s = sdfCircle(.5 * ratio, maxCircleRadius * audio0, .1 * audioX, uvr);
+    let s = sdfCircle(.5 * ratio, maxCircleRadius * c4, .1 * audioX, uvr);
     let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
-    let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * audio0, .1 * audio0, TAU * audio1, uvr);
+    let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
 
     // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvr  * vec2f(1, s), true);
 
@@ -174,10 +172,10 @@ fn main(
         let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(f32(index), 0);
         let space = .002261 * vec2(f32(index), 0);
-        stringMask += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * audio2), charIndex - charOffset, charSize).x;
+        stringMask += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * c0), charIndex - charOffset, charSize).x;
     }
 
-    let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), audio2);
+    let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), c0);
 
     var equiTriUV = (uvr - center) / .156; // .31
     equiTriUV = rotateVector(equiTriUV, TAU * c7);
