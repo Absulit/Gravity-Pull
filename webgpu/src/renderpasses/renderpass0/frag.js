@@ -34,6 +34,46 @@ fn pixelateUV(numColumns:f32, numRows:f32, uv:vec2f) -> vec2f {
     return coord;
 }
 
+fn sdfEquiTriangle( position:vec2f, radius:f32, feather: f32, uv:vec2f ) -> f32 {
+    var p = uv - position;
+    let r = radius;
+    let k = sqrt(3.0);
+    p.x = abs(p.x) - r;
+    p.y = p.y + r/k;
+    if( p.x+k*p.y>0.0 ) {
+        p = vec2(p.x-k*p.y,-k*p.x-p.y)/2.0;
+    }
+    p.x -= clamp( p.x, -2.0*r, 0.0 );
+    let d = -length(p)*sign(p.y);
+    let st = 1. - smoothstep(radius, radius + feather, d);
+    return st;
+}
+
+fn sdfEquiTriangle2( position:vec2f, radius:f32, feather: f32, uv:vec2f ) -> f32 {
+    var p = uv - position;
+    let r = radius;
+    let k = sqrt(3.0);
+    p.x = abs(p.x) - r;
+    p.y = p.y + r/k;
+    if( p.x+k*p.y>0.0 ) {
+        p = vec2(p.x-k*p.y,-k*p.x-p.y)/2.0;
+    }
+    p.x -= clamp( p.x, -2.0*r, 0.0 );
+    var d = -length(p)*sign(p.y);
+    // let st = smoothstep(radius, radius - .1, d);
+    var st = 0.;
+    if(d > .05 && (.05 + feather) > d){
+        st = 1.;
+    }
+    // st = abs(st) - r;
+    return st;
+}
+
+
+// fn opOnion( p: vec2f, r:f32 ) -> f32 {
+//   return abs(sdfEquiTriangle(p,r)) - r;
+// }
+
 @fragment
 fn main(
     @location(0) color: vec4f,
@@ -138,14 +178,17 @@ fn main(
 
     let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), audio2);
 
-
+    var equiTriUV = (uvr - center) / 0.31;
+    equiTriUV = rotateVector(equiTriUV, TAU * c7);
+    let equiTriMask = sdfEquiTriangle2(vec2f(), c2 * .5, .005, equiTriUV);
 
     //progress bar
     let audioWave = vec4f(l,l*audioX, l*uvrRotate.x, 1);
     let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
     let progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
+    let triangle = vec4f(1,audioX,uvrRotate.x,1) * equiTriMask;
 
-    let finalColor = layer( audioWave + progressBar + feedbackColor * .98, stringColor);
+    let finalColor = layer( audioWave + progressBar + triangle + feedbackColor * .98, stringColor);
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
