@@ -62,7 +62,8 @@ fn sdfEquiTriangle2( position:vec2f, radius:f32, feather: f32, uv:vec2f ) -> f32
     var d = -length(p)*sign(p.y);
     // let st = smoothstep(radius, radius - .1, d);
     var st = 0.;
-    if(d > .05 && (.05 + feather) > d){
+    let border = -.05;
+    if(d > border && (border + feather) > d){
         st = 1.;
     }
     // st = abs(st) - r;
@@ -178,9 +179,9 @@ fn main(
 
     let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), audio2);
 
-    var equiTriUV = (uvr - center) / 0.31;
+    var equiTriUV = (uvr - center) / .156; // .31
     equiTriUV = rotateVector(equiTriUV, TAU * c7);
-    let equiTriMask = sdfEquiTriangle2(vec2f(), c2 * .5, .005, equiTriUV);
+    let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV);
 
     //progress bar
     let audioWave = vec4f(l,l*audioX, l*uvrRotate.x, 1);
