@@ -165,7 +165,7 @@ fn main(
 
 
     var equiTriUV = (uvr - center) / .156; // .31
-    equiTriUV = rotateVector(equiTriUV, TAU * c7 * c6 - (params.time* step(.001, c2)) );
+    equiTriUV = rotateVector(equiTriUV, TAU * c7 * c6 + (params.time % TAU)*c5*2 );
     let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV) * step(.001, c2);
 
 
@@ -173,7 +173,7 @@ fn main(
 
 
     // colors of elements
-    let colorScheme = 1;
+    let colorScheme = 0;
 
     var audioWave = vec4f();
     var audioWave2 = vec4f();
