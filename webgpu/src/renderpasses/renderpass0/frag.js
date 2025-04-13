@@ -23,10 +23,6 @@ ${fusin}
 ${WHITE}
 ${RED}
 
-const NUMCHARS = 128;
-const MAXBITS = 256;
-const CHLEN = 0.125;
-
 fn pixelateUV(numColumns:f32, numRows:f32, uv:vec2f) -> vec2f {
     let dx = 1 / numColumns;
     let dy = 1 / numRows;
@@ -75,6 +71,13 @@ fn sdfEquiTriangle2( position:vec2f, radius:f32, feather: f32, uv:vec2f ) -> f32
 //   return abs(sdfEquiTriangle(p,r)) - r;
 // }
 
+const NUMCHARS = 128;
+const MAXBITS = 256;
+const CHLEN = 0.125;
+const charOffset = 32u; // A is 33
+const maxCircleRadius = .9;
+const audioLength = 826.; // 800. 826. 550.
+
 @fragment
 fn main(
     @location(0) color: vec4f,
@@ -88,7 +91,7 @@ fn main(
     let center = vec2(.5) * ratio;
 
     // params.audioLength 1024
-    let audioLength = 826.; // 800. 826. 550.
+
     let audioX = audio.data[ u32(uv.x * audioLength)] / MAXBITS;
     let audio1 = audio.data[ u32(.9 * audioLength)] / MAXBITS;
 
@@ -102,14 +105,13 @@ fn main(
     let c6 = audio.data[ u32(CHLEN * 6 * audioLength)] / MAXBITS;
     let c7 = audio.data[ u32(CHLEN * 7 * audioLength)] / MAXBITS;
 
-    let maxCircleRadius = .9;
+
 
     let n = (snoise(uvr * 2 - params.time * c4) + 1) * .5;
     let s = sdfCircle(.5 * ratio, maxCircleRadius * c4, .1 * audioX, uvr);
     let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
     let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
 
-    // let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), uvr  * vec2f(1, s), true);
 
     var tsq = t;
     if(params.rand > .5){
@@ -165,7 +167,7 @@ fn main(
     let fontPosition = vec2(.003, 0.) * ratio;
     let charSize = vec2(8u,22u);
     let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
-    let charOffset = 32u; // A is 33
+
 
     var stringMask = 0.;
     for (var index = 0; index < NUMCHARS; index++) {
@@ -178,8 +180,8 @@ fn main(
     let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), c0);
 
     var equiTriUV = (uvr - center) / .156; // .31
-    equiTriUV = rotateVector(equiTriUV, TAU * c7);
-    let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV);
+    equiTriUV = rotateVector(equiTriUV, TAU * c7 * c6);
+    let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV) * step(.001, c2);
 
     //progress bar
     let audioWave = vec4f(l,l*audioX, l*uvrRotate.x, 1);
