@@ -40,7 +40,7 @@ function clickSong() {
     playSong(this.src, this.name)
 }
 
-function playSong(audioUrl, name){
+function playSong(audioUrl, name) {
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, 1, false, false);
     points.setStorageMap('chars', strToCodes(name));
@@ -174,6 +174,8 @@ const renderPasses = [
 await points.init(renderPasses);
 
 points.fitWindow = true;
+
+document.addEventListener('dblclick', _ => points.fullscreen = !points.fullscreen);
 
 setInterval(_ => {
     console.log('---- 10s');
