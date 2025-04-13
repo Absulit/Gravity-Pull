@@ -24,28 +24,31 @@ function strToCodes(str) {
     return Array.from(str).map(char => char.charCodeAt(0))
 }
 
-const colors = [
-    {
-        name: 'default',
+const colors = {
+    color2: [0, 128, 255], // RGB array
 
-    },
-]
+}
+
+
+folderColors.addColor(colors, 'color2');
 
 
 let audio = null;
 let volume = 1;
 let loop = false;
-function playSong() {
-    audio && audio.pause() && (audio = null)
-    audio = points.setAudio('audio', this.src, audio.volume, loop, false);
-    points.setStorageMap('chars', strToCodes(this.name));
+function clickSong() {
+    playSong(this.src, this.name)
+}
+
+function playSong(audioUrl, name){
+    audio && audio.pause() && (audio = null);
+    audio = points.setAudio('audio', audioUrl, 1, false, false);
+    points.setStorageMap('chars', strToCodes(name));
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.play();
 }
 
-
-
-function onTimeUpdate(){
+function onTimeUpdate() {
     const progress = (audio.currentTime / audio.duration);
     points.setUniform('progress', progress);
 }
@@ -60,10 +63,8 @@ function loadSong() {
         if (file) {
             const audioUrl = URL.createObjectURL(file);
 
-            audio && audio.pause() && (audio = null);
-            audio = points.setAudio('audio', audioUrl, 1, false, false);
-            points.setStorageMap('chars', strToCodes(file.name));
-            audio.play();
+
+            playSong(audioUrl, file.name)
 
             await db.songs.add({ file });
 
@@ -73,7 +74,7 @@ function loadSong() {
                 name: file.name,
                 src: audioUrl,
                 volume: 1,
-                fn: playSong
+                fn: clickSong
             }
             folderSongs.add(song, 'fn').name(song.name);
         }
@@ -96,19 +97,19 @@ const songs = [
         name: 'Pulse 🎵',
         src: './../80s-pulse-synthwave-dude-212407.mp3',
         valume: 1,
-        fn: playSong
+        fn: clickSong
     },
     {
         name: 'Robot Swarm 🎵',
         src: './../synthwave-80s-robot-swarm-218092.mp3',
         valume: 1,
-        fn: playSong
+        fn: clickSong
     },
     {
         name: 'Fading Echoes 🎵',
         src: './../mezhdunami-fading-echoes-129291.mp3',
         valume: 1,
-        fn: playSong
+        fn: clickSong
     }
 ]
 
@@ -133,7 +134,7 @@ songsList.forEach(item => {
         name: file.name,
         src: audioUrl,
         volume: 1,
-        fn: playSong
+        fn: clickSong
     }
     song.controller = folderSongs.add(song, 'fn').name(file.name);
 })
@@ -148,10 +149,19 @@ folderOptions.open();
 folderSongs.open();
 
 points.setSampler('imageSampler', null);
+points.setSampler('textImageSampler', {
+    addressModeU: 'clamp-to-edge',
+    addressModeV: 'clamp-to-edge',
+    magFilter: 'nearest',
+    minFilter: 'nearest',
+    mipmapFilter: 'nearest',
+    //maxAnisotropy: 10,
+});
 points.setTexture2d('feedbackTexture', true);
 
 audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', volume, loop, false);
 
+points.setUniform('somecolor', colors.color2, 'vec3f')
 points.setUniform('rand', 0);
 points.setUniform('progress', 0);
 await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
@@ -176,6 +186,7 @@ update();
 // call `points.update()` methods to render a new frame
 function update() {
     Object.keys(options).forEach(key => points.setUniform(key, options[key]));
+    points.setUniform('somecolor', colors.color2.map(i => i / 255))
     points.update();
     requestAnimationFrame(update);
 }
