@@ -93,6 +93,7 @@ fn main(
     // params.audioLength 1024
 
     let audioX = audio.data[ u32(uv.x * audioLength)] / MAXBITS;
+    let audioX2 = audio.data[ u32(audioLength - uv.x * audioLength)] / MAXBITS;
     let audio1 = audio.data[ u32(.9 * audioLength)] / MAXBITS;
 
     // CHANNELS
@@ -152,7 +153,8 @@ fn main(
 
 
     let height = 0.;
-    let l = sdfLine2(vec2(0, height + audioX) * ratio, vec2(1, height + audioX) * ratio, .005, uvr);
+    let lineMask = sdfLine2(vec2(0, height + audioX) * ratio, vec2(1, height + audioX) * ratio, .005, uvr);
+    let lineMask2 = sdfLine2(vec2(0, height + audioX2) * ratio, vec2(1, height + audioX2) * ratio, .005, uvr);
 
 
     let numColumns = 400. * 1; //params.sliderA;
@@ -183,13 +185,18 @@ fn main(
     equiTriUV = rotateVector(equiTriUV, TAU * c7 * c6);
     let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV) * step(.001, c2);
 
+
+
+
+
     //progress bar
-    let audioWave = vec4f(l,l*audioX, l*uvrRotate.x, 1);
+    let audioWave = vec4f(lineMask, lineMask*audioX, lineMask*uvrRotate.x, 1);
+    let audioWave2 = vec4f(lineMask2, lineMask2*audioX2, lineMask2*uvrRotate.x, 1);
     let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
     let progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
-    let triangle = vec4f(1,audioX,uvrRotate.x,1) * equiTriMask;
+    let triangle = vec4f(1,.4 + .1 * c4, step(.5, c2),1) * equiTriMask;
 
-    let finalColor = layer( audioWave + progressBar + triangle + feedbackColor * .98, stringColor);
+    let finalColor = layer( audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, stringColor);
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
