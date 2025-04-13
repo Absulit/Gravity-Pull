@@ -107,7 +107,6 @@ fn main(
     let c7 = audio.data[ u32(CHLEN * 7 * audioLength)] / MAXBITS;
 
 
-
     let n = (snoise(uvr * 2 - params.time * c4) + 1) * .5;
     let s = sdfCircle(.5 * ratio, maxCircleRadius * c4, .1 * audioX, uvr);
     let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
@@ -130,8 +129,6 @@ fn main(
         fadeRotate = 1-d * 0.0151; // 0.0151 to reduce intensity of d
     }
 
-
-
     let uvrRotate0 = rotateVector(uvr - center, PI * .001) + center; // option 1
     let uvrRotate1 = rotateVector(uvr - center, s) + center; // option 2 s
     let uvrRotate2 = rotateVector(uvr - center, tsq * rotDir) + center; // option 3 t sq
@@ -143,28 +140,16 @@ fn main(
         uvrRotate = (pixelateUV(100 * c1, 100 * c1, uvr) + (uvrRotate * 3)) / 4;
     }
 
-
-
-
-
     let feedbackUV = uvrRotate / fadeRotate;
     let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, true);
-
-
 
     let height = 0.;
     let lineMask = sdfLine2(vec2(0, height + audioX) * ratio, vec2(1, height + audioX) * ratio, .005, uvr);
     let lineMask2 = sdfLine2(vec2(0, height + audioX2) * ratio, vec2(1, height + audioX2) * ratio, .005, uvr);
 
-
     let numColumns = 400. * 1; //params.sliderA;
     let numRows = 400. * 1; //params.sliderB;
-
-    let pixelsWidth = params.screen.x / numColumns;
-    let pixelsHeight = params.screen.y / numRows;
-    let dx = pixelsWidth * (1. / params.screen.x);
-    let dy = pixelsHeight * (1. / params.screen.y);
-    let pixeleduv = vec2(dx*floor( uvr.x / dx), dy * floor( uvr.y / dy));
+    let pixeleduv = pixelateUV(numColumns, numRows, uvr);
 
     let fontPosition = vec2(.003, 0.) * ratio;
     let charSize = vec2(8u,22u);
@@ -179,7 +164,7 @@ fn main(
         stringMask += sprite(font, imageSampler, space + fontPosition + charPosition, pixeleduv / ( 2.476 + 2 * c0), charIndex - charOffset, charSize).x;
     }
 
-    let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), c0);
+
 
     var equiTriUV = (uvr - center) / .156; // .31
     equiTriUV = rotateVector(equiTriUV, TAU * c7 * c6);
@@ -194,7 +179,8 @@ fn main(
     let audioWave2 = vec4f(lineMask2, lineMask2*audioX2, lineMask2*uvrRotate.x, 1);
     let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
     let progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
-    let triangle = vec4f(1,.4 + .1 * c4, step(.5, c2),1) * equiTriMask;
+    let triangle = vec4f(1,.4 + .1 * c4, step(.5, c2) * .4,1) * equiTriMask;
+    let stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), c0);
 
     let finalColor = layer( audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, stringColor);
     // let finalColor = vec4f(1,s,0,1);
