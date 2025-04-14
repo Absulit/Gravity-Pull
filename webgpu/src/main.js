@@ -97,7 +97,9 @@ async function onCompleteTags(result) {
         const base64String = picture.data.reduce((data, byte) => data + String.fromCharCode(byte), '');
         artworkImageUrl = `data:${picture.format};base64,${btoa(base64String)}`;
         artworkColors = await countImageColors(artworkImageUrl);
-        // console.log(artworkColors);
+        console.log(artworkColors);
+        points.setStorageMap('artworkColors', artworkColors.flat());
+        points.setUniform('artworkLoaded', 1);
         await db.songs.add({
             file,
             artworkImageUrl,
@@ -163,10 +165,7 @@ db.version(1).stores({
 const songsList = await db.songs
     .toArray();
 
-console.log(songsList);
 songsList.forEach(item => {
-    console.log(item);
-
     const { file } = item;
     const audioUrl = URL.createObjectURL(file);
     const song = {
@@ -201,12 +200,13 @@ points.setTexture2d('feedbackTexture', true);
 
 audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', volume, loop, false);
 
-points.setUniform('somecolor', colors.color2, 'vec3f')
 points.setUniform('rand', 0);
 points.setUniform('progress', 0);
+points.setUniform('artworkLoaded', 0);
+points.setUniform('somecolor', colors.color2, 'vec3f');
 await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
 points.setStorageMap('chars', [15, 14, 8, 13, 19, 18], 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
-
+points.setStorageMap('artworkColors', [1,1,1,1], 'array<vec4f>');
 const renderPasses = [
     new RenderPass(vert, frag0, null),
 ];

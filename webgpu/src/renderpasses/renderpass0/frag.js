@@ -173,7 +173,7 @@ fn main(
 
 
     // colors of elements
-    let colorScheme = 0;
+    let colorScheme = 2;
 
     var audioWave = vec4f();
     var audioWave2 = vec4f();
@@ -195,6 +195,13 @@ fn main(
             progressBar = vec4f( vec3f(.2,.282,.152) * progressBarMask, 1);
             triangle = vec4f( vec3f(.309,.4,.290) * equiTriMask, 1);
             stringColor = vec4f( .572,.717,.549, 1) * stringMask;
+        }
+        case 2 {
+            audioWave = vec4f( mix(artworkColors[9].rgb, artworkColors[0].rgb, audioX) * lineMask, 1);
+            audioWave2 = vec4f( mix(artworkColors[8].rgb, artworkColors[1].rgb,audioX)  * lineMask2, 1);
+            progressBar = vec4f( mix(artworkColors[7].rgb, artworkColors[2].rgb, uvrRotate.x)  * progressBarMask, 1);
+            triangle = vec4f( mix(artworkColors[6].rgb, artworkColors[3].rgb, c4)  * equiTriMask, 1);
+            stringColor = mix(artworkColors[5], artworkColors[4], c0)  * stringMask;
         }
 
       }

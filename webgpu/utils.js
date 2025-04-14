@@ -7,7 +7,7 @@ export async function countImageColors(src) {
         const img = new Image();
         img.src = src; // Replace with your image URL
         img.onload = _ => {
-            const side = 512;
+            const side = 16;
             canvas.width = side;
             canvas.height = side;
             ctx.drawImage(img, 0, 0,side,side);
@@ -20,8 +20,8 @@ export async function countImageColors(src) {
             const imageData = ctx.getImageData(0, 0, side, side);
             const data = imageData.data;
 
-            // const dataURL = canvas.toDataURL('image/png');
-            // console.log(dataURL);
+            const dataURL = canvas.toDataURL('image/png');
+            console.log(dataURL);
 
 
             // Count unique colors
