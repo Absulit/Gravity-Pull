@@ -173,7 +173,10 @@ fn main(
 
 
     // colors of elements
-    let colorScheme = 2;
+    var colorScheme = 0;
+    if(params.artworkLoaded == 1.){
+        colorScheme = 2;
+    }
 
     var audioWave = vec4f();
     var audioWave2 = vec4f();

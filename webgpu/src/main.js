@@ -46,6 +46,12 @@ function playSong(song, file) {
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, 1, false, false);
     points.setStorageMap('chars', strToCodes(name));
+    let artworkLoaded = 0;
+    song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
+    song?.artworkColors && (artworkLoaded = 1);
+    points.setUniform('artworkLoaded', artworkLoaded);
+    console.log(song);
+
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.play();
 }
@@ -170,6 +176,8 @@ songsList.forEach(item => {
     const audioUrl = URL.createObjectURL(file);
     const song = {
         file,
+        artworkColors: item.artworkColors,
+        artworkImageUrl: item.artworkImageUrl,
         name: item.name,
         src: audioUrl,
         volume: 1,
@@ -204,9 +212,9 @@ points.setUniform('rand', 0);
 points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
 points.setUniform('somecolor', colors.color2, 'vec3f');
-await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
 points.setStorageMap('chars', [15, 14, 8, 13, 19, 18], 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
-points.setStorageMap('artworkColors', [1,1,1,1], 'array<vec4f>');
+points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
+await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
 const renderPasses = [
     new RenderPass(vert, frag0, null),
 ];
