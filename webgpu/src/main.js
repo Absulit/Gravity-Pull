@@ -29,8 +29,6 @@ const colors = {
     color2: [0, 128, 255], // RGB array
 
 }
-
-
 folderColors.addColor(colors, 'color2');
 
 
@@ -38,45 +36,18 @@ let audio = null;
 let volume = 1;
 let loop = false;
 function clickSong() {
-    playSong(this.file)
+    playSong(this, this.file)
 }
 
-function playSong(file) {
+function playSong(song, file) {
     const audioUrl = URL.createObjectURL(file);
-    const name = file.name;
+    const name = song?.name || file.name;
 
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, 1, false, false);
     points.setStorageMap('chars', strToCodes(name));
     audio.addEventListener('timeupdate', onTimeUpdate);
-    //audio.play();
-
-    jsmediatags.read(file, {
-        onSuccess: async tag => {
-            console.log('Song Name:', tag.tags.title);
-            console.log('Album Name:', tag.tags.album);
-            const picture = tag.tags.picture;
-            if (picture) {
-                const base64String = picture.data.reduce((data, byte) => data + String.fromCharCode(byte), '');
-                const imageUrl = `data:${picture.format};base64,${btoa(base64String)}`;
-                // console.log(imageUrl);
-                // window.open(imageUrl,'_blank')
-                const colors = await countImageColors(imageUrl);
-                console.log(colors);
-                audio.play();
-            } else {
-                console.log('No album art found.');
-                audio.play();
-            }
-        },
-        onError: error => {
-            console.error('Error reading tags:', error);
-            audio.play();
-        }
-    })
-
-
-
+    audio.play();
 }
 
 function onTimeUpdate() {
@@ -84,36 +55,70 @@ function onTimeUpdate() {
     points.setUniform('progress', progress);
 }
 
+function readTags(file) {
+    return new Promise((resolve, reject) => {
+        jsmediatags.read(file, {
+            onSuccess: tag => {
+                resolve({ tag, file }); // Resolve the promise with the tag data
+            },
+            onError: error => {
+                reject(error); // Reject the promise with the error
+            }
+        });
+    });
+}
+
 function loadSong() {
+
+
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'audio/mp3, audio/flac, audio/ogg';
 
     fileInput.addEventListener('change', async e => {
+        audio?.pause();
         const file = e.target.files[0];
         if (file) {
-            const audioUrl = URL.createObjectURL(file);
-
-
-            playSong(file)
-
-            await db.songs.add({ file });
-
-            console.log('Now playing:', file.name);
-
-            const song = {
-                file,
-                name: file.name,
-                src: audioUrl,
-                volume: 1,
-                fn: clickSong
-            }
-            folderSongs.add(song, 'fn').name(song.name);
+            readTags(file).then(onCompleteTags);
+            playSong(null, file);
         }
     });
 
     fileInput.click();
+}
 
+async function onCompleteTags(result) {
+    const { tag, file } = result;
+    const { title, album, picture } = tag.tags;
+    console.log(result);
+    let artworkImageUrl = null;
+    let artworkColors = null;
+    if (picture) {
+        const base64String = picture.data.reduce((data, byte) => data + String.fromCharCode(byte), '');
+        artworkImageUrl = `data:${picture.format};base64,${btoa(base64String)}`;
+        artworkColors = await countImageColors(artworkImageUrl);
+        // console.log(artworkColors);
+        await db.songs.add({
+            file,
+            artworkImageUrl,
+            artworkColors,
+            name: `${title} - ${album}` || file.name
+        });
+    } else {
+        console.log('No album art found.');
+    }
+    const audioUrl = URL.createObjectURL(file);
+    const song = {
+        file,
+        artworkImageUrl,
+        artworkColors,
+        name: `${title} - ${album}` || file.name,
+        src: audioUrl,
+        volume: 1,
+        fn: clickSong
+    }
+    folderSongs.add(song, 'fn').name(song.name);
+    points.setStorageMap('chars', strToCodes(song.name));
 }
 
 const songs = [
@@ -160,16 +165,18 @@ const songsList = await db.songs
 
 console.log(songsList);
 songsList.forEach(item => {
+    console.log(item);
+
     const { file } = item;
     const audioUrl = URL.createObjectURL(file);
     const song = {
         file,
-        name: file.name,
+        name: item.name,
         src: audioUrl,
         volume: 1,
         fn: clickSong
     }
-    song.controller = folderSongs.add(song, 'fn').name(file.name);
+    song.controller = folderSongs.add(song, 'fn').name(item.name);
 })
 //------------------------------------
 
