@@ -76,6 +76,8 @@ const NUMCHARS = 128;
 const MAXBITS = 256;
 const CHLEN = 0.125;
 const DINTENSITY = 0.0151;
+const B = vec3(); // black
+const DWHITE = vec4f(2); // double white to avoid washed out bg
 const charOffset = 32u; // A is 33
 const maxCircleRadius = .9;
 const audioLength = 826.; // 800. 826. 550.
@@ -173,10 +175,10 @@ fn main(
 
 
     // colors of elements
-    var colorScheme = 0;
-    if(params.artworkLoaded == 1.){
-        colorScheme = 2;
-    }
+    var colorScheme = 3;
+    // if(params.artworkLoaded == 1.){
+    //     colorScheme = 2;
+    // }
 
     var audioWave = vec4f();
     var audioWave2 = vec4f();
@@ -184,33 +186,46 @@ fn main(
     var triangle = vec4f();
     var stringColor = vec4f();
 
+    var bg = vec4f();
+
     switch colorScheme {
-        case 0, default {
+        case 0, default { // default colorful
             audioWave = vec4f(lineMask, lineMask*audioX, lineMask*uvrRotate.x, 1);
             audioWave2 = vec4f(lineMask2, lineMask2*audioX2, lineMask2*uvrRotate.x, 1);
             progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
             triangle = vec4f(1,.4 + .1 * c4, step(.5, c2) * .4,1) * equiTriMask;
             stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), c0);
         }
-        case 1 {
+        case 1 { // matrix
             audioWave = vec4f( vec3f(.129,.145,.039) * lineMask, 1);
             audioWave2 = vec4f( vec3f(.231,.274,.117) * lineMask2, 1);
             progressBar = vec4f( vec3f(.2,.282,.152) * progressBarMask, 1);
             triangle = vec4f( vec3f(.309,.4,.290) * equiTriMask, 1);
             stringColor = vec4f( .572,.717,.549, 1) * stringMask;
         }
-        case 2 {
+        case 2 { // artwork
             audioWave = vec4f( mix(artworkColors[9].rgb, artworkColors[0].rgb, audioX) * lineMask, 1);
             audioWave2 = vec4f( mix(artworkColors[8].rgb, artworkColors[1].rgb,audioX)  * lineMask2, 1);
             progressBar = vec4f( mix(artworkColors[7].rgb, artworkColors[2].rgb, uvrRotate.x)  * progressBarMask, 1);
             triangle = vec4f( mix(artworkColors[6].rgb, artworkColors[3].rgb, c4)  * equiTriMask, 1);
             stringColor = mix(artworkColors[5], artworkColors[4], c0)  * stringMask;
         }
+        case 3 { // white bg
+            bg = DWHITE;
+            audioWave = vec4f( B * (1-lineMask), lineMask);
+            audioWave2 = vec4f( B  * (1-lineMask2), lineMask2);
+            progressBar = vec4f( B * (1-progressBarMask), progressBarMask);
+            triangle = vec4f( B  * (1-equiTriMask), equiTriMask);
+            stringColor = vec4f(vec3f(1-stringMask), stringMask);
+        }
 
-      }
+    }
 
-
-    let finalColor = layer( audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, stringColor);
+    var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, stringColor);
+    if(colorScheme == 3){
+        finalColor = layer(bg, finalColor);
+    }
+    // let finalColor = layer(bg, audioWave);
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
