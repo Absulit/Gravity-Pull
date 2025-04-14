@@ -4,6 +4,7 @@ import frag0 from './renderpasses/renderpass0/frag.js';
 import vert from './renderpasses/renderpass0/vert.js';
 import * as dat from 'datgui';
 import { Dexie } from 'https://unpkg.com/dexie/dist/modern/dexie.mjs';
+import { countImageColors } from '../utils.js';
 
 /**
  * @type {Points}
@@ -37,15 +38,45 @@ let audio = null;
 let volume = 1;
 let loop = false;
 function clickSong() {
-    playSong(this.src, this.name)
+    playSong(this.file)
 }
 
-function playSong(audioUrl, name) {
+function playSong(file) {
+    const audioUrl = URL.createObjectURL(file);
+    const name = file.name;
+
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, 1, false, false);
     points.setStorageMap('chars', strToCodes(name));
     audio.addEventListener('timeupdate', onTimeUpdate);
-    audio.play();
+    //audio.play();
+
+    jsmediatags.read(file, {
+        onSuccess: async tag => {
+            console.log('Song Name:', tag.tags.title);
+            console.log('Album Name:', tag.tags.album);
+            const picture = tag.tags.picture;
+            if (picture) {
+                const base64String = picture.data.reduce((data, byte) => data + String.fromCharCode(byte), '');
+                const imageUrl = `data:${picture.format};base64,${btoa(base64String)}`;
+                // console.log(imageUrl);
+                // window.open(imageUrl,'_blank')
+                const colors = await countImageColors(imageUrl);
+                console.log(colors);
+                audio.play();
+            } else {
+                console.log('No album art found.');
+                audio.play();
+            }
+        },
+        onError: error => {
+            console.error('Error reading tags:', error);
+            audio.play();
+        }
+    })
+
+
+
 }
 
 function onTimeUpdate() {
@@ -64,13 +95,14 @@ function loadSong() {
             const audioUrl = URL.createObjectURL(file);
 
 
-            playSong(audioUrl, file.name)
+            playSong(file)
 
             await db.songs.add({ file });
 
             console.log('Now playing:', file.name);
 
             const song = {
+                file,
                 name: file.name,
                 src: audioUrl,
                 volume: 1,
@@ -131,6 +163,7 @@ songsList.forEach(item => {
     const { file } = item;
     const audioUrl = URL.createObjectURL(file);
     const song = {
+        file,
         name: file.name,
         src: audioUrl,
         volume: 1,
