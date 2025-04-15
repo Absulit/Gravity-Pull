@@ -169,8 +169,9 @@ fn main(
 
 
     var equiTriUV = (uvr - center) / .156; // .31
-    variables.triRotation += .00001 * c7 * c6 + c5 * .00001;
-    variables.triRotation -= .000001 * step(0., variables.triRotation) * step(.001, c2);
+    variables.triRotation += .00001 * c7 * c6 + c5 * .00001; // rotate gradually
+    variables.triRotation -= .000001 * step(0., variables.triRotation) * step(.001, c2); // revert contantly only if visible
+    variables.triRotation = variables.triRotation % TAU; // cap rotation to avoid it getting stuck
     equiTriUV = rotateVector(equiTriUV, variables.triRotation);
     let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV) * step(.001, c2);
 
@@ -179,9 +180,11 @@ fn main(
 
 
     // colors of elements
-    var colorScheme = 3;
-    if(params.artworkLoaded == 1.){
-        colorScheme = 2;
+    var colorScheme = u32(params.colorScheme);
+    if(colorScheme == 2){
+        if(params.artworkLoaded == 0.){
+            colorScheme = 0;
+        }
     }
 
     var audioWave = vec4f();

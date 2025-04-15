@@ -31,6 +31,21 @@ const colors = {
 }
 folderColors.addColor(colors, 'color2');
 
+const selectedScheme = {
+    option: 0, // Default value
+};
+points.setUniform('colorScheme', 0);
+const colorSchemes = {
+    Default: 0,
+    Matrix: 1,
+    Artwork: 2,
+    Negative: 3
+}
+gui.add(selectedScheme, 'option', colorSchemes).onChange(v => {
+    console.log('Selected Value:', v);
+    points.setUniform('colorScheme', v);
+});
+
 
 let audio = null;
 let volume = 1;
