@@ -159,11 +159,13 @@ fn main(
 
 
     var stringMask = 0.;
+    var stringMask2 = 0.;
     for (var index = 0; index < NUMCHARS; index++) {
         let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(f32(index), 0);
         let space = .002261 * vec2(f32(index), 0);
         stringMask += sprite(font, textImageSampler, space + fontPosition + charPosition, uvr / ( 2.476 + 2 * c0), charIndex - charOffset, charSize).x;
+        stringMask2 += sprite(font, textImageSampler, space + fontPosition + charPosition, uvr / ( 2.476 + 2 * c0) + .0005, charIndex - charOffset, charSize).x;
     }
 
 
@@ -192,6 +194,7 @@ fn main(
     var progressBar = vec4f();
     var triangle = vec4f();
     var stringColor = vec4f();
+    var stringColor2 = vec4f();
 
     var bg = vec4f();
 
@@ -202,6 +205,7 @@ fn main(
             progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
             triangle = vec4f(1,.4 + .1 * c4, step(.5, c2) * .4,1) * equiTriMask;
             stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), c0);
+            stringColor2 = stringMask2 * mix( vec4( 1-vec3(1 * fusin(.132) , 1 * fusin(.586), 0), 1), vec4(1-vec3(1,.5, 1 * fusin(.7589633)), 1), c0);;
         }
         case 1 { // matrix
             audioWave = vec4f( vec3f(.129,.145,.039) * lineMask, 1);
@@ -209,6 +213,7 @@ fn main(
             progressBar = vec4f( vec3f(.2,.282,.152) * progressBarMask, 1);
             triangle = vec4f( vec3f(.309,.4,.290) * equiTriMask, 1);
             stringColor = vec4f( .572,.717,.549, 1) * stringMask;
+            stringColor2 = stringMask2 * GREEN;
         }
         case 2 { // artwork
             audioWave = vec4f( mix(artworkColors[9].rgb, artworkColors[0].rgb, audioX) * lineMask, 1);
@@ -216,6 +221,7 @@ fn main(
             progressBar = vec4f( mix(artworkColors[7].rgb, artworkColors[2].rgb, uvrRotate.x)  * progressBarMask, 1);
             triangle = vec4f( mix(artworkColors[6].rgb, artworkColors[3].rgb, c4)  * equiTriMask, 1);
             stringColor = mix(artworkColors[5], artworkColors[4], c0)  * stringMask;
+            stringColor2 = stringMask2 * WHITE;
         }
         case 3 { // white bg
             bg = DWHITE;
@@ -224,11 +230,12 @@ fn main(
             progressBar = vec4f( B * (1-progressBarMask), progressBarMask);
             triangle = vec4f( B  * (1-equiTriMask), equiTriMask);
             stringColor = vec4f(vec3f(1-stringMask), stringMask);
+            stringColor2 = stringMask2 * WHITE;
         }
 
     }
 
-    var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, stringColor);
+    var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, layer(stringColor2, stringColor));
     if(colorScheme == 3){
         finalColor = layer(bg, finalColor);
     }
