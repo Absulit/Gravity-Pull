@@ -80,7 +80,7 @@ function readTags(file) {
                 resolve({ tag, file }); // Resolve the promise with the tag data
             },
             onError: error => {
-                reject(error); // Reject the promise with the error
+                reject({ error, file }); // Reject the promise with the error
             }
         });
     });
@@ -127,17 +127,18 @@ async function onCompleteTags(result) {
     } else {
         console.log('No album art found.');
     }
-    const audioUrl = URL.createObjectURL(file);
-    const song = {
-        file,
-        artworkImageUrl,
-        artworkColors,
-        name: `${title} - ${album}` || file.name,
-        src: audioUrl,
-        volume: 1,
-        fn: clickSong
-    }
-    folderSongs.add(song, 'fn').name(song.name);
+    // const audioUrl = URL.createObjectURL(file);
+    // const song = {
+    //     file,
+    //     artworkImageUrl,
+    //     artworkColors,
+    //     name: `${title} - ${album}` || file.name,
+    //     src: audioUrl,
+    //     volume: 1,
+    //     fn: clickSong
+    // }
+    // folderSongs.add(song, 'fn').name(song.name);
+    loadSongInFolder(file, `${title} - ${album}`,  artworkImageUrl, artworkColors);
     points.setStorageMap('chars', strToCodes(song.name));
 }
 
@@ -170,8 +171,34 @@ const songs = [
     }
 ]
 
-songs.forEach(song => {
-    song.controller = folderSongs.add(song, 'fn').name(song.name);
+function loadSongInFolder(file, name = null, artworkImageUrl = null, artworkColors = null) {
+    const src = URL.createObjectURL(file);
+    const song = {
+        file,
+        artworkImageUrl,
+        artworkColors,
+        name: name || file.name,
+        src,
+        volume: 1,
+        fn: clickSong
+    }
+    folderSongs.add(song, 'fn').name(song.name);
+}
+
+songs.forEach(async song => {
+    console.log(song);
+    if (song.src) {
+        const response = await fetch(song.src);
+        const blob = await response.blob();
+        const file = new File([blob], song.name, { type: blob.type });
+        readTags(file).then(onCompleteTags).catch((response) => {
+            const { error, file } = response;
+            console.log(error, file);
+            loadSongInFolder(file)
+
+        });
+    }
+    //song.controller = folderSongs.add(song, 'fn').name(song.name);
 })
 
 //------------------------------------
