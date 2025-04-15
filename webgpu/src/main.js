@@ -111,6 +111,7 @@ async function onCompleteTags(result) {
     console.log(result);
     let artworkImageUrl = null;
     let artworkColors = null;
+    const name = `${title} - ${album}`
     if (picture) {
         const base64String = picture.data.reduce((data, byte) => data + String.fromCharCode(byte), '');
         artworkImageUrl = `data:${picture.format};base64,${btoa(base64String)}`;
@@ -122,24 +123,14 @@ async function onCompleteTags(result) {
             file,
             artworkImageUrl,
             artworkColors,
-            name: `${title} - ${album}` || file.name
+            name: name || file.name
         });
     } else {
         console.log('No album art found.');
     }
-    // const audioUrl = URL.createObjectURL(file);
-    // const song = {
-    //     file,
-    //     artworkImageUrl,
-    //     artworkColors,
-    //     name: `${title} - ${album}` || file.name,
-    //     src: audioUrl,
-    //     volume: 1,
-    //     fn: clickSong
-    // }
-    // folderSongs.add(song, 'fn').name(song.name);
-    loadSongInFolder(file, `${title} - ${album}`,  artworkImageUrl, artworkColors);
-    points.setStorageMap('chars', strToCodes(song.name));
+
+    loadSongInFolder(file, name, artworkImageUrl, artworkColors);
+    points.setStorageMap('chars', strToCodes(name));
 }
 
 const songs = [
@@ -197,8 +188,10 @@ songs.forEach(async song => {
             loadSongInFolder(file)
 
         });
+    } else {
+
+        song.controller = folderSongs.add(song, 'fn').name(song.name);
     }
-    //song.controller = folderSongs.add(song, 'fn').name(song.name);
 })
 
 //------------------------------------
