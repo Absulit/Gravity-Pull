@@ -144,7 +144,7 @@ fn main(
     let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
     let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
 
-    let rectMask = sdRectangle1( vec2f(.5, .1) * ratio, vec2f(.9 * c0 * c0, .2 * c3 ) * ratio, .1 * c1, uvr);
+    let rectMask = sdRectangle1( vec2f(.5, .2 + .5 * c0 * c0 * c0) * ratio, vec2f(.9 * c0 * c0, .5 * c3 ) * ratio, .1 * c1, uvr);
 
 
     var tsq = t;

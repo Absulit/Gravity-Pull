@@ -13,9 +13,10 @@ const points = new Points('canvas');
 const gui = new dat.GUI({ name: 'Points GUI' });
 const folderOptions = gui.addFolder('options');
 const folderSongs = gui.addFolder('songs');
-const folderColors = gui.addFolder('colors');
+// const folderColors = gui.addFolder('colors');
 
 const options = {
+    volume:  0.500,
     sliderA: 0.619,
     sliderB: 0.861,
     sliderC: 0.508,
@@ -25,11 +26,11 @@ function strToCodes(str) {
     return Array.from(str).map(char => char.charCodeAt(0))
 }
 
-const colors = {
-    color2: [0, 128, 255], // RGB array
+// const colors = {
+//     color2: [0, 128, 255], // RGB array
 
-}
-folderColors.addColor(colors, 'color2');
+// }
+// folderColors.addColor(colors, 'color2');
 
 const selectedScheme = {
     'Color Scheme': 0, // Default value
@@ -45,7 +46,7 @@ folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => po
 
 
 let audio = null;
-let volume = 1;
+let volume = .5;
 let loop = false;
 function clickSong() {
     playSong(this, this.file)
@@ -56,7 +57,7 @@ function playSong(song, file) {
     const name = song?.name || file.name;
 
     audio && audio.pause() && (audio = null);
-    audio = points.setAudio('audio', audioUrl, 1, false, false);
+    audio = points.setAudio('audio', audioUrl, volume, false, false);
     points.setStorageMap('chars', strToCodes(name));
     let artworkLoaded = 0;
     song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
@@ -219,10 +220,19 @@ songsList.forEach(item => {
 })
 //------------------------------------
 
+let volumeSlider = null;
 Object.keys(options).forEach(key => {
     points.setUniform(key, options[key]);
-    folderOptions.add(options, key, -1, 1, .0001).name(key);
+    if(key == 'volume'){
+        volumeSlider = folderOptions.add(options, key, 0, 1, .0001).name(key);
+    }
+    folderOptions.add(options, key, -1, 1, .0001).name(key)
 })
+
+volumeSlider.onChange( value => {
+    console.log(value);
+    audio.volume = value;
+  });
 
 folderOptions.open();
 folderSongs.open();
@@ -243,7 +253,7 @@ audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', vol
 points.setUniform('rand', 0);
 points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
-points.setUniform('somecolor', colors.color2, 'vec3f');
+// points.setUniform('somecolor', colors.color2, 'vec3f');
 points.setStorageMap('chars', [15, 14, 8, 13, 19, 18], 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
 points.setStorage('variables', 'Variables');
@@ -269,7 +279,7 @@ update();
 // call `points.update()` methods to render a new frame
 function update() {
     Object.keys(options).forEach(key => points.setUniform(key, options[key]));
-    points.setUniform('somecolor', colors.color2.map(i => i / 255))
+    // points.setUniform('somecolor', colors.color2.map(i => i / 255))
     points.update();
     requestAnimationFrame(update);
 }
