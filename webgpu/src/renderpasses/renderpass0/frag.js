@@ -170,10 +170,11 @@ fn main(
         fadeRotate = 1-d * DINTENSITY; // DINTENSITY to reduce intensity of d
     }
 
-    let uvrRotate0 = rotateVector(uvr - center, PI * .001) + center; // option 1
-    let uvrRotate1 = rotateVector(uvr - center, s) + center; // option 2 s
-    let uvrRotate2 = rotateVector(uvr - center, tsq * rotDir) + center; // option 3 t sq
-    let uvrRotate3 = rotateVector(uvr - center, rectMask) + center; // option 4 rect
+    let uvr_minus_center = uvr - center;
+    let uvrRotate0 = rotateVector(uvr_minus_center, PI * .001) + center; // option 1
+    let uvrRotate1 = rotateVector(uvr_minus_center, s) + center; // option 2 s
+    let uvrRotate2 = rotateVector(uvr_minus_center, tsq * rotDir) + center; // option 3 t sq
+    let uvrRotate3 = rotateVector(uvr_minus_center, rectMask * d2.x * rotDir) + center; // option 4 rect
 
     var uvrRotate = (uvrRotate0 + uvrRotate1 + uvrRotate2 + uvrRotate3) / 4;
     if(c7 > .2){
