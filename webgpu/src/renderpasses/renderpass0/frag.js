@@ -2,7 +2,6 @@ import { fnusin, fusin } from 'animation';
 import { GREEN, layer, RED, WHITE } from 'color';
 import { sprite, texturePosition } from 'image';
 import { PI, rotateVector, TAU } from 'math';
-import { snoise } from 'noise2d';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'sdf';
 import { structs } from './structs.js';
 
@@ -13,7 +12,6 @@ ${fnusin}
 ${sdfSegment}
 ${sdfLine2}
 ${texturePosition}
-${snoise}
 ${sdfCircle}
 ${sdfSquare}
 ${rotateVector}
@@ -74,12 +72,41 @@ fn sdfEquiTriangle2( position:vec2f, radius:f32, feather: f32, uv:vec2f ) -> f32
 //   return abs(sdfEquiTriangle(p,r)) - r;
 // }
 
+fn sdfRectangle( position0:vec2f, position1:vec2f, uv:vec2f ) -> f32 {
+    var r = 0.;
+    // if(uv.x > position0.x && uv.x < position1.x && uv.y > position0.y && uv.y < position1.y){
+    //     r = 1.;
+    // }
+    // r = step(position0.x, uv.x) * step(uv.x, position1.x) * step(position0.y, uv.y) * step(uv.y, position1.y);
+    r = step(0.0, uv.x - position0.x) * step(0.0, position1.x - uv.x) * step(0.0, uv.y - position0.y) * step(0.0, position1.y - uv.y);
+    return r;
+}
+
+
+fn sdRectangle1(position:vec2f, size:vec2f, feather:f32, uv:vec2f) -> f32 {
+    let d = abs(uv - position) - size * 0.5;
+    let m = max(d.x, d.y);
+    var s = smoothstep(0, - feather, m);
+    return s;
+}
+
+fn sdRectangle2(position0:vec2f, position1:vec2f, uv:vec2f) -> f32 {
+    let d = max(position0 - uv, uv - position1);
+    // If the point is inside the rectangle, return the negative distance to the closest edge
+    return length(max(d, vec2f())) + min(max(d.x, d.y), 0.0);
+}
+
+
+
 const NUMCHARS = 128;
 const MAXBITS = 256;
 const CHLEN = 0.125;
 const DINTENSITY = 0.0151;
 const B = vec3(); // black
 const DWHITE = vec4f(2); // double white to avoid washed out bg
+const TRIROTATION = .00001;
+const PIXELATEDSIZE = 100;
+const charSize = vec2(8u,22u);
 const charOffset = 32u; // A is 33
 const maxCircleRadius = .9;
 const audioLength = 826.; // 800. 826. 550.
@@ -113,10 +140,11 @@ fn main(
     let c7 = audio.data[ u32(CHLEN * 7 * audioLength)] / MAXBITS;
 
 
-    let n = (snoise(uvr * 2 - params.time * c4) + 1) * .5;
     let s = sdfCircle(.5 * ratio, maxCircleRadius * c4, .1 * audioX, uvr);
     let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
     let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
+
+    let rectMask = sdRectangle1( vec2f(.5, .1) * ratio, vec2f(.9 * c0 * c0, .2 * c3 ) * ratio, .1 * c1, uvr);
 
 
     var tsq = t;
@@ -138,12 +166,11 @@ fn main(
     let uvrRotate0 = rotateVector(uvr - center, PI * .001) + center; // option 1
     let uvrRotate1 = rotateVector(uvr - center, s) + center; // option 2 s
     let uvrRotate2 = rotateVector(uvr - center, tsq * rotDir) + center; // option 3 t sq
+    let uvrRotate3 = rotateVector(uvr - center, rectMask) + center; // option 4 rect
 
-    let uvrPixelated = pixelateUV(100, 100, uvr);
-
-    var uvrRotate = (uvrRotate0 + uvrRotate1 + uvrRotate2) / 3;
+    var uvrRotate = (uvrRotate0 + uvrRotate1 + uvrRotate2 + uvrRotate3) / 4;
     if(c7 > .2){
-        uvrRotate = (pixelateUV(100 * c1, 100 * c1, uvr) + (uvrRotate * 3)) / 4;
+        uvrRotate = (pixelateUV(PIXELATEDSIZE * c1, PIXELATEDSIZE * c1, uvr) + (uvrRotate * 4)) / 5;
     }
 
     let feedbackUV = uvrRotate / fadeRotate;
@@ -154,7 +181,6 @@ fn main(
     let lineMask2 = sdfLine2(vec2(0, height + audioX2) * ratio, vec2(1, height + audioX2) * ratio, .005, uvr);
 
     let fontPosition = vec2(.003, 0.) * ratio;
-    let charSize = vec2(8u,22u);
     let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
 
 
@@ -164,18 +190,19 @@ fn main(
         let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(f32(index), 0);
         let space = .002261 * vec2(f32(index), 0);
-        stringMask += sprite(font, textImageSampler, space + fontPosition + charPosition, uvr / ( 2.476 + 2 * c0), charIndex - charOffset, charSize).x;
-        stringMask2 += sprite(font, textImageSampler, space + fontPosition + charPosition, uvr / ( 2.476 + 2 * c0) + .0005, charIndex - charOffset, charSize).x;
+        stringMask += sprite(font, textImageSampler, space + fontPosition + charPosition, uvr / ( 2.476 + c0), charIndex - charOffset, charSize).x;
+        stringMask2 += sprite(font, textImageSampler, space + fontPosition + charPosition, uvr / ( 2.476 + c0) + .0005, charIndex - charOffset, charSize).x;
     }
 
 
 
     var equiTriUV = (uvr - center) / .156; // .31
-    variables.triRotation += .00001 * c7 * c6 + c5 * .00001; // rotate gradually
-    variables.triRotation -= .000001 * step(0., variables.triRotation) * step(.001, c2); // revert contantly only if visible
+    let c2Visible = step(.001, c2); // to revert value only if c2 (triangle) is visible
+    variables.triRotation += TRIROTATION * c7 * c6 + c5 * TRIROTATION; // rotate gradually
+    variables.triRotation -= .000001 * step(0., variables.triRotation) * c2Visible;
     variables.triRotation = variables.triRotation % TAU; // cap rotation to avoid it getting stuck
     equiTriUV = rotateVector(equiTriUV, variables.triRotation);
-    let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV) * step(.001, c2);
+    let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV) * c2Visible;
 
 
     let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
@@ -192,6 +219,7 @@ fn main(
     var audioWave = vec4f();
     var audioWave2 = vec4f();
     var progressBar = vec4f();
+    // var rect = vec4f();
     var triangle = vec4f();
     var stringColor = vec4f();
     var stringColor2 = vec4f();
@@ -234,7 +262,7 @@ fn main(
         }
 
     }
-
+    // rect = vec4f(.1,.1,.1,1) * rectMask;
     var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, layer(stringColor2, stringColor));
     if(colorScheme == 3){
         finalColor = layer(bg, finalColor);
@@ -243,7 +271,8 @@ fn main(
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
-    // return vec4(n);
+    // return vec4(sdfRectangle(center, center + vec2f(.2,.1), uvr));
+    // return vec4(sdRectangle1(mouse*ratio, vec2f(.5,.1), .01, uvr));
 }
 `;
 
