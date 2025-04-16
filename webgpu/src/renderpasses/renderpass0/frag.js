@@ -87,7 +87,16 @@ fn sdRectangle1(position:vec2f, size:vec2f, feather:f32, uv:vec2f) -> f32 {
     let d = abs(uv - position) - size * 0.5;
     let m = max(d.x, d.y);
     var s = smoothstep(0, - feather, m);
-    return s;
+
+
+    var st = 0.;
+    let border = -.05;
+    if(m > border && (border + feather) > m){
+        st = 1.;
+    }
+    // st = abs(st) - r;
+
+    return st;
 }
 
 fn sdRectangle2(position0:vec2f, position1:vec2f, uv:vec2f) -> f32 {
@@ -144,8 +153,7 @@ fn main(
     let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
     let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
 
-    let rectMask = sdRectangle1( vec2f(.5, .2 + .5 * c0 * c0 * c0) * ratio, vec2f(.9 * c0 * c0, .5 * c3 ) * ratio, .1 * c1, uvr);
-
+    let rectMask = sdRectangle1( center, vec2f(.5,.5) + vec2f(.4 * c0,.4 * c0), .024 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
 
     var tsq = t;
     if(params.rand > .5){
@@ -155,7 +163,6 @@ fn main(
 
     let d2 = center - uvr;
     let d = uvr - center;
-    // let len = length(d);
     var fadeRotate = 1-d2 * DINTENSITY;
     var rotDir = 1.;
     if(c6 > .3){
@@ -196,6 +203,8 @@ fn main(
 
 
 
+
+
     var equiTriUV = (uvr - center) / .156; // .31
     let c2Visible = step(.001, c2); // to revert value only if c2 (triangle) is visible
     variables.triRotation += TRIROTATION * c7 * c6 + c5 * TRIROTATION; // rotate gradually
@@ -219,7 +228,6 @@ fn main(
     var audioWave = vec4f();
     var audioWave2 = vec4f();
     var progressBar = vec4f();
-    // var rect = vec4f();
     var triangle = vec4f();
     var stringColor = vec4f();
     var stringColor2 = vec4f();
@@ -233,7 +241,7 @@ fn main(
             progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
             triangle = vec4f(1,.4 + .1 * c4, step(.5, c2) * .4,1) * equiTriMask;
             stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), c0);
-            stringColor2 = stringMask2 * mix( vec4( 1-vec3(1 * fusin(.132) , 1 * fusin(.586), 0), 1), vec4(1-vec3(1,.5, 1 * fusin(.7589633)), 1), c0);;
+            stringColor2 = stringMask2 * mix( vec4( 1-vec3(1 * fusin(.132) , 1 * fusin(.586), 0), 1), vec4(1-vec3(1,.5, 1 * fusin(.7589633)), 1), c0);
         }
         case 1 { // matrix
             audioWave = vec4f( vec3f(.129,.145,.039) * lineMask, 1);
@@ -260,9 +268,8 @@ fn main(
             stringColor = vec4f(vec3f(1-stringMask), stringMask);
             stringColor2 = stringMask2 * WHITE;
         }
-
     }
-    // rect = vec4f(.1,.1,.1,1) * rectMask;
+
     var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, layer(stringColor2, stringColor));
     if(colorScheme == 3){
         finalColor = layer(bg, finalColor);
@@ -271,8 +278,7 @@ fn main(
     // let finalColor = vec4f(1,s,0,1);
 
     return finalColor;
-    // return vec4(sdfRectangle(center, center + vec2f(.2,.1), uvr));
-    // return vec4(sdRectangle1(mouse*ratio, vec2f(.5,.1), .01, uvr));
+    // return vec4(rect);
 }
 `;
 

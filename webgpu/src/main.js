@@ -16,7 +16,7 @@ const folderSongs = gui.addFolder('songs');
 // const folderColors = gui.addFolder('colors');
 
 const options = {
-    volume:  0.500,
+    volume: 0.500,
     sliderA: 0.619,
     sliderB: 0.861,
     sliderC: 0.508,
@@ -223,16 +223,14 @@ songsList.forEach(item => {
 let volumeSlider = null;
 Object.keys(options).forEach(key => {
     points.setUniform(key, options[key]);
-    if(key == 'volume'){
+    if (key == 'volume') {
         volumeSlider = folderOptions.add(options, key, 0, 1, .0001).name(key);
+    }else{
+        folderOptions.add(options, key, -1, 1, .0001).name(key)
     }
-    folderOptions.add(options, key, -1, 1, .0001).name(key)
 })
 
-volumeSlider.onChange( value => {
-    console.log(value);
-    audio.volume = value;
-  });
+volumeSlider.onChange(value => audio.volume = value);
 
 folderOptions.open();
 folderSongs.open();
