@@ -225,7 +225,7 @@ Object.keys(options).forEach(key => {
     points.setUniform(key, options[key]);
     if (key == 'volume') {
         volumeSlider = folderOptions.add(options, key, 0, 1, .0001).name(key);
-    }else{
+    } else {
         folderOptions.add(options, key, -1, 1, .0001).name(key)
     }
 })
@@ -281,6 +281,27 @@ function update() {
     points.update();
     requestAnimationFrame(update);
 }
+
+
+/******************************/
+let isMouseMoving = false;
+let mouseStopTimeout;
+
+document.addEventListener('mousemove', e => {
+    if (!isMouseMoving) {
+        isMouseMoving = true;
+        document.body.style.cursor = 'auto';
+    }
+
+    // Clear the timeout to reset the stop detection
+    clearTimeout(mouseStopTimeout);
+
+    // Set a timeout to detect when the mouse stops
+    mouseStopTimeout = setTimeout(_ => {
+        isMouseMoving = false;
+        document.body.style.cursor = 'none';
+    }, 1000);
+});
 
 
 
