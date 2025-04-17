@@ -171,7 +171,7 @@ fn main(
         fadeRotate = 1-d * DINTENSITY; // DINTENSITY to reduce intensity of d
     }
 
-    let uvr_minus_center = uvr - center;
+    let uvr_minus_center = d;//uvr - center;
     let uvrRotate0 = rotateVector(uvr_minus_center, PIMILLI) + center; // option 1
     let uvrRotate1 = rotateVector(uvr_minus_center, s) + center; // option 2 s
     let uvrRotate2 = rotateVector(uvr_minus_center, tsq * rotDir) + center; // option 3 t sq
@@ -207,13 +207,13 @@ fn main(
 
 
 
-    var equiTriUV = (uvr - center) / .156; // .31
+    var equiTriUV = uvr_minus_center / .156; // .31
     let c2Visible = step(.001, c2); // to revert value only if c2 (triangle) is visible
     variables.triRotation += TRIROTATION * c7 * c6 + c5 * TRIROTATION; // rotate gradually
     variables.triRotation -= .000001 * step(0., variables.triRotation) * c2Visible;
     variables.triRotation = variables.triRotation % TAU; // cap rotation to avoid it getting stuck
     equiTriUV = rotateVector(equiTriUV, variables.triRotation);
-    let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 *.5, .007, equiTriUV) * c2Visible;
+    let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 * .5, .007, equiTriUV) * c2Visible;
 
 
     let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
