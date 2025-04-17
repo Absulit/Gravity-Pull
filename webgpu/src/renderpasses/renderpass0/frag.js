@@ -150,9 +150,9 @@ fn main(
     let c7 = audio.data[ u32(CHLEN * 7 * audioLength)] / MAXBITS;
 
 
-    let s = sdfCircle(.5 * ratio, maxCircleRadius * c4, .1 * audioX, uvr);
-    let t = sdfCircle(.5 * ratio, audio1, audio1, uvr);
-    let sq = sdfSquare(vec2(.5) * ratio, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
+    let s = sdfCircle(center, maxCircleRadius * c4, .1 * audioX, uvr);
+    let t = sdfCircle(center, audio1, audio1, uvr);
+    let sq = sdfSquare(center, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
 
     let rectMask = sdRectangle1( center, vec2f(.5,.5) + vec2f(.4 * c0,.4 * c0), .024 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
 
