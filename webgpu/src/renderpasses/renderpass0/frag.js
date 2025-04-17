@@ -31,10 +31,11 @@ fn pixelateUV(numColumns:f32, numRows:f32, uv:vec2f) -> vec2f {
     return coord;
 }
 
+const SQRT3 = sqrt(3.0);
 fn sdfEquiTriangle( position:vec2f, radius:f32, feather: f32, uv:vec2f ) -> f32 {
     var p = uv - position;
     let r = radius;
-    let k = sqrt(3.0);
+    let k = SQRT3;
     p.x = abs(p.x) - r;
     p.y = p.y + r/k;
     if( p.x+k*p.y>0.0 ) {
@@ -58,11 +59,12 @@ fn sdfEquiTriangle2( position:vec2f, radius:f32, feather: f32, uv:vec2f ) -> f32
     p.x -= clamp( p.x, -2.0*r, 0.0 );
     var d = -length(p)*sign(p.y);
     // let st = smoothstep(radius, radius - .1, d);
-    var st = 0.;
     let border = -.05;
-    if(d > border && (border + feather) > d){
-        st = 1.;
-    }
+    // var st = 0.;
+    // if(d > border && (border + feather) > d){
+    //     st = 1.;
+    // }
+    let st = mix(0,1, step(border, d) * step(d, border + feather));
     // st = abs(st) - r;
     return st;
 }
@@ -86,14 +88,15 @@ fn sdfRectangle( position0:vec2f, position1:vec2f, uv:vec2f ) -> f32 {
 fn sdRectangle1(position:vec2f, size:vec2f, feather:f32, uv:vec2f) -> f32 {
     let d = abs(uv - position) - size * 0.5;
     let m = max(d.x, d.y);
-    var s = smoothstep(0, - feather, m);
+    // var s = smoothstep(0, - feather, m);
 
-
-    var st = 0.;
     let border = -.05;
-    if(m > border && (border + feather) > m){
-        st = 1.;
-    }
+    // var st = 0.;
+    // if(m > border && (border + feather) > m){
+    //     st = 1.;
+    // }
+    let st = mix(0,1, step(border, m) * step(m, border + feather));
+
     // st = abs(st) - r;
 
     return st;
@@ -116,6 +119,7 @@ const DWHITE = vec4f(2); // double white to avoid washed out bg
 const TRIROTATION = .00001;
 const PIXELATEDSIZE = 100;
 const PIMILLI = PI * .001;
+const FEEDBACKFADE = .98;
 const charSize = vec2(8u,22u);
 const charOffset = 32u; // A is 33
 const maxCircleRadius = .9;
@@ -156,11 +160,11 @@ fn main(
 
     let rectMask = sdRectangle1( center, vec2f(.5,.5) + vec2f(.4 * c0,.4 * c0), .024 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
 
-    var tsq = t;
-    if(params.rand > .5){
-        tsq = sq;
-    }
-
+    // var tsq = t;
+    // if(params.rand > .5){
+    //     tsq = sq;
+    // }
+    var tsq = mix(t, sq, params.rand);
 
     let d2 = center - uvr;
     let d = uvr - center;
@@ -181,6 +185,10 @@ fn main(
     if(c7 > .2){
         uvrRotate = (pixelateUV(PIXELATEDSIZE * c1, PIXELATEDSIZE * c1, uvr) + (uvrRotate * 4)) / 5;
     }
+
+    // var uvrRotateMix0 = (uvrRotate0 + uvrRotate1 + uvrRotate2 + uvrRotate3) / 4;
+    // let uvrRotateMix1 = (pixelateUV(PIXELATEDSIZE * c1, PIXELATEDSIZE * c1, uvr) + (uvrRotateMix0 * 4)) / 5;
+    // let uvrRotate = mix(uvrRotateMix0, uvrRotateMix1, step(.2, c7));
 
     let feedbackUV = uvrRotate / fadeRotate;
     let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, false);
@@ -221,10 +229,8 @@ fn main(
 
     // colors of elements
     var colorScheme = u32(params.colorScheme);
-    if(colorScheme == 2){
-        if(params.artworkLoaded == 0.){
-            colorScheme = 0;
-        }
+    if(colorScheme == 2 && params.artworkLoaded == 0.){
+        colorScheme = 0;
     }
 
     var audioWave = vec4f();
@@ -255,10 +261,10 @@ fn main(
         }
         case 2 { // artwork
             audioWave = vec4f( mix(artworkColors[9].rgb, artworkColors[0].rgb, audioX) * lineMask, 1);
-            audioWave2 = vec4f( mix(artworkColors[8].rgb, artworkColors[1].rgb,audioX)  * lineMask2, 1);
-            progressBar = vec4f( mix(artworkColors[7].rgb, artworkColors[2].rgb, uvrRotate.x)  * progressBarMask, 1);
-            triangle = vec4f( mix(artworkColors[6].rgb, artworkColors[3].rgb, c4)  * equiTriMask, 1);
-            stringColor = mix(artworkColors[5], artworkColors[4], c0)  * stringMask;
+            audioWave2 = vec4f( mix(artworkColors[8].rgb, artworkColors[1].rgb,audioX) * lineMask2, 1);
+            progressBar = vec4f( mix(artworkColors[7].rgb, artworkColors[2].rgb, uvrRotate.x) * progressBarMask, 1);
+            triangle = vec4f( mix(artworkColors[6].rgb, artworkColors[3].rgb, c4) * equiTriMask, 1);
+            stringColor = mix(artworkColors[5], artworkColors[4], c0) * stringMask;
             stringColor2 = stringMask2 * WHITE;
         }
         case 3 { // white bg
@@ -272,7 +278,7 @@ fn main(
         }
     }
 
-    var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor * .98, layer(stringColor2, stringColor));
+    var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor * FEEDBACKFADE, layer(stringColor2, stringColor));
     if(colorScheme == 3){
         finalColor = layer(bg, finalColor);
     }
