@@ -115,6 +115,7 @@ const B = vec3(); // black
 const DWHITE = vec4f(2); // double white to avoid washed out bg
 const TRIROTATION = .00001;
 const PIXELATEDSIZE = 100;
+const PIMILLI = PI * .001;
 const charSize = vec2(8u,22u);
 const charOffset = 32u; // A is 33
 const maxCircleRadius = .9;
@@ -171,10 +172,10 @@ fn main(
     }
 
     let uvr_minus_center = uvr - center;
-    let uvrRotate0 = rotateVector(uvr_minus_center, PI * .001) + center; // option 1
+    let uvrRotate0 = rotateVector(uvr_minus_center, PIMILLI) + center; // option 1
     let uvrRotate1 = rotateVector(uvr_minus_center, s) + center; // option 2 s
     let uvrRotate2 = rotateVector(uvr_minus_center, tsq * rotDir) + center; // option 3 t sq
-    let uvrRotate3 = rotateVector(uvr_minus_center, rectMask * d2.x * rotDir) + center; // option 4 rect
+    let uvrRotate3 = rotateVector(uvr_minus_center, rectMask * d2.y * rotDir) + center; // option 4 rect
 
     var uvrRotate = (uvrRotate0 + uvrRotate1 + uvrRotate2 + uvrRotate3) / 4;
     if(c7 > .2){
