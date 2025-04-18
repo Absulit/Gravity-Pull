@@ -24,6 +24,15 @@ const intensity = 1;
 const light = new THREE.AmbientLight(color, intensity);
 scene.add(light);
 
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 10.5 );
+scene.add( directionalLight )
+
+const targetObject = new THREE.Object3D();
+targetObject.position.set(-3,0,0)
+scene.add(targetObject);
+
+directionalLight.target = targetObject;
+
 
 const numberOfCubes = 512;
 const boxWidth = .01;
@@ -39,6 +48,12 @@ for (let i = 0; i < numberOfCubes; i++) {
     scene.add(cube);
     cubes.push(cube)
 }
+
+const sphereGeometry = new THREE.SphereGeometry(1, 32, 16);
+const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x009900 });
+const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+scene.add(sphere);
 
 camera.position.z = 5;
 
