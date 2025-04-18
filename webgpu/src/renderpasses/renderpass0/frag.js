@@ -169,27 +169,8 @@ fn main(
     let d2 = center - uvr;
     let d = uvr - center;
 
-    // let uvr2 = d; // to center
-    // let a = atan2(uvr2.y, uvr2.x);
-    // let r = length(uvr2);
-    // let st = vec2(a / PI, .1 / r * params.sliderA) + params.time * .1;
 
-
-
-
-
-
-
-
-
-
-    // var fadeRotate = 1-d2 * DINTENSITY;
-    // var rotDir = 1.;
-    // if(c6 > .3){
-    //     rotDir = -1;
-    //     fadeRotate = 1-d * DINTENSITY; // DINTENSITY to reduce intensity of d
-    // }
-    let c6gtp3 = step(.3, c6);
+    let c6gtp3 = step(.3, c6); // if(c6 > .3)
     let fadeRotate = mix(1-d2 * DINTENSITY, 1-d * DINTENSITY, c6gtp3);
     let rotDir = mix(1., -1, c6gtp3);
 
