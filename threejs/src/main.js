@@ -15,7 +15,7 @@ playBtn.addEventListener('click', _ => {
     a.audio.play();
 })
 
-;
+    ;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -29,11 +29,11 @@ const intensity = 1;
 const light = new THREE.AmbientLight(ambientLightColor, intensity);
 scene.add(light);
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 10.5 );
-scene.add( directionalLight )
+const directionalLight = new THREE.DirectionalLight(0xffffff, 10.5);
+scene.add(directionalLight)
 
 const targetObject = new THREE.Object3D();
-targetObject.position.set(-3,0,0)
+targetObject.position.set(-3, 0, 0)
 scene.add(targetObject);
 
 directionalLight.target = targetObject;
@@ -80,5 +80,9 @@ function update() {
     renderer.renderAsync(scene, camera);
 }
 renderer.setAnimationLoop(update);
+renderer.debug.getShaderAsync(scene, camera, sphere).then(e => {
+    console.log(e.vertexShader)
+    console.log(e.fragmentShader)
+})
 
 update();
