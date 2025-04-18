@@ -1,4 +1,9 @@
-import { playAudio } from "./utils.js";
+import * as THREE from 'three/webgpu'
+import { positionLocal, Fn, time, vec3 } from 'three/tsl'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+// import * as THREE from 'three'
+
+import { playAudio } from './utils.js';
 
 console.log('---- main.js');
 
@@ -10,7 +15,7 @@ playBtn.addEventListener('click', _ => {
     a.audio.play();
 })
 
-import * as THREE from 'three';
+;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -70,7 +75,7 @@ function update() {
         // cube.material.needsUpdate = true;
     })
 
-    renderer.render(scene, camera);
+    renderer.renderAsync(scene, camera);
 }
 renderer.setAnimationLoop(update);
 
