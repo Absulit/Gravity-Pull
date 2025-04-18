@@ -1,5 +1,22 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, Fn, time, vec3, color } from 'three/tsl'
+import {
+    positionLocal,
+    Fn,
+    time,
+    vec3,
+    vec4,
+    color,
+    texture,
+    convertColorSpace,
+    abs,
+    If,
+    rotateUV,
+    vec2,
+    uniform,
+    modelWorldMatrix,
+    cameraProjectionMatrix,
+    cameraViewMatrix
+} from 'three/tsl'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 // import * as THREE from 'three'
 
@@ -13,9 +30,7 @@ const playBtn = document.getElementById('playBtn');
 playBtn.addEventListener('click', _ => {
     console.log(a);
     a.audio.play();
-})
-
-    ;
+});
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -57,7 +72,39 @@ for (let i = 0; i < numberOfCubes; i++) {
 const sphereGeometry = new THREE.SphereGeometry(1, 32, 16);
 // const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x009900 });
 const sphereMaterial = new THREE.NodeMaterial()
-sphereMaterial.fragmentNode = color('crimson')
+// sphereMaterial.fragmentNode = color('crimson').toVar('crimson')
+// sphereMaterial.fragmentNode = convertColorSpace(
+//     texture(new THREE.TextureLoader().load('https://sbcode.net/img/grid.png')),
+//     THREE.SRGBColorSpace,
+//     THREE.LinearSRGBColorSpace
+// )
+const data0 = uniform(a.data[10] / 255);
+const main = Fn(() => {
+    const p = positionLocal.toVar()
+
+    p.assign(rotateUV(p.xy, data0, vec2())) // rotate
+
+    If(abs(p.x).greaterThan(0.45), () => {
+        p.z = 1
+    })
+    If(abs(p.y).greaterThan(0.45), () => {
+        p.z = 1
+    })
+    return p
+})
+
+sphereMaterial.fragmentNode = main();
+
+const vertexMain = Fn(() => {
+
+    const finalVert = modelWorldMatrix.mul(positionLocal).add(data0).toVar();
+
+    return cameraProjectionMatrix.mul(cameraViewMatrix).mul(finalVert);
+
+    // return vec4(data0); // Return the transformed vertex position
+})
+sphereMaterial.vertexNode = vertexMain();
+
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
 scene.add(sphere);
@@ -76,6 +123,7 @@ function update() {
         cube.rotation.y = Math.PI * .5 * val;
         // cube.material.needsUpdate = true;
     })
+    data0.value = a.data[0] / 256 * 3.14 * 2;
 
     renderer.renderAsync(scene, camera);
 }
