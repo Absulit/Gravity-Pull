@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, Fn, time, vec3 } from 'three/tsl'
+import { positionLocal, Fn, time, vec3, color } from 'three/tsl'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 // import * as THREE from 'three'
 
@@ -24,9 +24,9 @@ const renderer = new THREE.WebGPURenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const color = 0xFFFFFF;
+const ambientLightColor = 0xFFFFFF;
 const intensity = 1;
-const light = new THREE.AmbientLight(color, intensity);
+const light = new THREE.AmbientLight(ambientLightColor, intensity);
 scene.add(light);
 
 const directionalLight = new THREE.DirectionalLight( 0xffffff, 10.5 );
@@ -55,7 +55,9 @@ for (let i = 0; i < numberOfCubes; i++) {
 }
 
 const sphereGeometry = new THREE.SphereGeometry(1, 32, 16);
-const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x009900 });
+// const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x009900 });
+const sphereMaterial = new THREE.NodeMaterial()
+sphereMaterial.fragmentNode = color('crimson')
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
 scene.add(sphere);
