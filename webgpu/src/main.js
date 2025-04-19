@@ -43,11 +43,9 @@ folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => po
 
 
 let audio = null;
-let volume = .5;
 let loop = false;
 function clickSong() {
     console.log(this);
-
     playSong(this, this.file)
 }
 
@@ -56,7 +54,7 @@ function playSong(song, file) {
     const name = song?.name || file.name;
 
     audio && audio.pause() && (audio = null);
-    audio = points.setAudio('audio', audioUrl, volume, false, false);
+    audio = points.setAudio('audio', audioUrl, options.volume, false, false);
     points.setStorageMap('chars', strToCodes(name));
     let artworkLoaded = 0;
     song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
@@ -153,19 +151,16 @@ const songs = [
     {
         name: 'Pulse 🎵',
         src: './../80s-pulse-synthwave-dude-212407.mp3',
-        volume: 1,
         fn: clickSong
     },
     {
         name: 'Robot Swarm 🎵',
         src: './../synthwave-80s-robot-swarm-218092.mp3',
-        volume: 1,
         fn: clickSong
     },
     {
         name: 'Fading Echoes 🎵',
         src: './../mezhdunami-fading-echoes-129291.mp3',
-        volume: 1,
         fn: clickSong
     }
 ]
@@ -178,7 +173,6 @@ function loadSongInFolder(file, name = null, artworkImageUrl = null, artworkColo
         artworkColors,
         name: name || file.name,
         src,
-        volume: 1,
         fn: clickSong
     }
     folderSongs.add(song, 'fn').name(song.name);
@@ -223,7 +217,6 @@ songsList.forEach(item => {
         artworkImageUrl: item.artworkImageUrl,
         name: item.name,
         src: audioUrl,
-        volume: 1,
         fn: clickSong
     }
     song.controller = folderSongs.add(song, 'fn').name(item.name);
@@ -260,7 +253,7 @@ points.setSampler('textImageSampler', {
 });
 points.setTexture2d('feedbackTexture', true);
 
-audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', volume, loop, false);
+audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', options.volume, loop, false);
 
 points.setUniform('rand', 0);
 points.setUniform('progress', 0);
