@@ -13,7 +13,8 @@ const points = new Points('canvas');
 const gui = new dat.GUI({ name: 'Points GUI' });
 const folderOptions = gui.addFolder('options');
 const folderSongs = gui.addFolder('songs');
-// const folderColors = gui.addFolder('colors');
+
+const playlist = [];
 
 const options = {
     volume: 0.500,
@@ -26,11 +27,7 @@ function strToCodes(str) {
     return Array.from(str).map(char => char.charCodeAt(0))
 }
 
-// const colors = {
-//     color2: [0, 128, 255], // RGB array
 
-// }
-// folderColors.addColor(colors, 'color2');
 
 const selectedScheme = {
     'Color Scheme': 0, // Default value
@@ -49,6 +46,8 @@ let audio = null;
 let volume = .5;
 let loop = false;
 function clickSong() {
+    console.log(this);
+
     playSong(this, this.file)
 }
 
@@ -64,8 +63,16 @@ function playSong(song, file) {
     song?.artworkColors && (artworkLoaded = 1);
     points.setUniform('artworkLoaded', artworkLoaded);
     console.log(song);
+    audio.id = song.id;
 
     audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('ended', async e => {
+        console.log('---- audio complete', e.target);
+        const id = +e.target.id;
+        const nextSong = playlist[id + 1] || playlist[0];
+        playSong(nextSong, nextSong.file);
+
+    });
     audio.play();
 }
 
@@ -146,19 +153,19 @@ const songs = [
     {
         name: 'Pulse 🎵',
         src: './../80s-pulse-synthwave-dude-212407.mp3',
-        valume: 1,
+        volume: 1,
         fn: clickSong
     },
     {
         name: 'Robot Swarm 🎵',
         src: './../synthwave-80s-robot-swarm-218092.mp3',
-        valume: 1,
+        volume: 1,
         fn: clickSong
     },
     {
         name: 'Fading Echoes 🎵',
         src: './../mezhdunami-fading-echoes-129291.mp3',
-        valume: 1,
+        volume: 1,
         fn: clickSong
     }
 ]
@@ -183,6 +190,9 @@ songs.forEach(async song => {
         const response = await fetch(song.src);
         const blob = await response.blob();
         const file = new File([blob], song.name, { type: blob.type });
+        song.file = file;
+        song.id = playlist.length;
+        playlist.push(song);
         readTags(file).then(onCompleteTags).catch((response) => {
             const { error, file } = response;
             console.log(error, file);
@@ -190,7 +200,6 @@ songs.forEach(async song => {
 
         });
     } else {
-
         song.controller = folderSongs.add(song, 'fn').name(song.name);
     }
 })
@@ -208,6 +217,7 @@ songsList.forEach(item => {
     const { file } = item;
     const audioUrl = URL.createObjectURL(file);
     const song = {
+        id: playlist.length,
         file,
         artworkColors: item.artworkColors,
         artworkImageUrl: item.artworkImageUrl,
@@ -217,7 +227,11 @@ songsList.forEach(item => {
         fn: clickSong
     }
     song.controller = folderSongs.add(song, 'fn').name(item.name);
+    playlist.push(song);
 })
+console.log(playlist);
+
+
 //------------------------------------
 
 let volumeSlider = null;
