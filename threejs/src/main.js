@@ -13,6 +13,7 @@ import {
     rotateUV,
     vec2,
     uniform,
+    attribute,
     modelWorldMatrix,
     cameraProjectionMatrix,
     cameraViewMatrix,
@@ -73,6 +74,15 @@ for (let i = 0; i < numberOfCubes; i++) {
     cubes.push(cube)
 }
 
+function addVertexID(geometry) {
+    const vertexCount = geometry.attributes.position.count; // Number of vertices
+    const vertexIDs = new Float32Array(vertexCount);
+    for (let i = 0; i < vertexCount; i++) {
+        vertexIDs[i] = i; // Assign IDs to vertices
+    }
+    geometry.setAttribute('vertexID', new THREE.BufferAttribute(vertexIDs, 1));
+}
+
 const sphereGeometry = new THREE.SphereGeometry(1, 32, 16);
 // const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x009900 });
 const sphereMaterial = new THREE.NodeMaterial()
@@ -82,6 +92,11 @@ const sphereMaterial = new THREE.NodeMaterial()
 //     THREE.SRGBColorSpace,
 //     THREE.LinearSRGBColorSpace
 // )
+
+addVertexID(sphereGeometry);
+
+// const vertexId = attribute('vertexID', 'float'); // Declare attribute for vertex ID
+
 const data0 = uniform(a.data[10] / 255);
 const main = Fn(() => {
     const p = positionLocal.toVar()
@@ -106,8 +121,16 @@ const vertexMain = Fn(() => {
 
     const displacement = 1;
     const newPosition = positionLocal.add(normalLocal.mul(data0));
-
     return cameraProjectionMatrix.mul(cameraViewMatrix.mul( newPosition ))
+
+
+    // const id = vertexId.toVar(); // Access vertex ID dynamically
+    // const position = positionLocal.toVar();
+
+    // Example: Modifying position based on ID
+    // position.x += id.mul(0.01); // Slightly offset x based on ID
+    // return position;
+
 })
 sphereMaterial.vertexNode = vertexMain();
 
