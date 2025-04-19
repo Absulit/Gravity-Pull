@@ -15,7 +15,11 @@ import {
     uniform,
     modelWorldMatrix,
     cameraProjectionMatrix,
-    cameraViewMatrix
+    cameraViewMatrix,
+    materialNormal,
+    modelNormalMatrix,
+    normalGeometry,
+    normalLocal,
 } from 'three/tsl'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 // import * as THREE from 'three'
@@ -97,11 +101,13 @@ sphereMaterial.fragmentNode = main();
 
 const vertexMain = Fn(() => {
 
-    const finalVert = modelWorldMatrix.mul(positionLocal).add(data0).toVar();
+    // const finalVert = modelWorldMatrix.mul(positionLocal).add(data0).toVar();
+    // return cameraProjectionMatrix.mul(cameraViewMatrix).mul(finalVert);
 
-    return cameraProjectionMatrix.mul(cameraViewMatrix).mul(finalVert);
+    const displacement = 1;
+    const newPosition = positionLocal.add(normalLocal.mul(data0));
 
-    // return vec4(data0); // Return the transformed vertex position
+    return cameraProjectionMatrix.mul(cameraViewMatrix.mul( newPosition ))
 })
 sphereMaterial.vertexNode = vertexMain();
 
