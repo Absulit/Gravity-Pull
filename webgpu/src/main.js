@@ -15,7 +15,8 @@ const folderOptions = gui.addFolder('options');
 const folderControls = gui.addFolder('controls');
 const folderSongs = gui.addFolder('songs');
 
-const playlist = [];
+let audio = null;
+let loop = false;
 
 const options = {
     volume: 0.500,
@@ -27,8 +28,6 @@ const options = {
 function strToCodes(str) {
     return Array.from(str).map(char => char.charCodeAt(0))
 }
-
-
 
 const selectedScheme = {
     'Color Scheme': 0, // Default value
@@ -42,9 +41,6 @@ const colorSchemes = {
 }
 folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => points.setUniform('colorScheme', v));
 
-
-let audio = null;
-let loop = false;
 function clickSong() {
     console.log(this);
     playSong(this, this.file)
@@ -68,7 +64,7 @@ function playSong(song, file) {
     audio.addEventListener('ended', async e => {
         console.log('---- audio complete', e.target);
         const id = +e.target.id;
-        const nextSong = playlist[id + 1] || playlist[0];
+        const nextSong = songs[id + 1] || songs[0];
         playSong(nextSong, nextSong.file);
 
     });
@@ -94,8 +90,6 @@ function readTags(file) {
 }
 
 function loadSong() {
-
-
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'audio/mp3, audio/flac, audio/ogg';
@@ -194,8 +188,8 @@ songs.forEach(async song => {
         const blob = await response.blob();
         const file = new File([blob], song.name, { type: blob.type });
         song.file = file;
-        song.id = playlist.length;
-        playlist.push(song);
+        song.id = songs.length;
+        songs.push(song);
         readTags(file).then(onCompleteTags).catch(response => {
             const { error, file } = response;
             console.log(error, file);
@@ -212,14 +206,14 @@ db.version(1).stores({
     songs: '++id, file'
 });
 
-const songsList = await db.songs
+const songsFromDB = await db.songs
     .toArray();
 
-songsList.forEach(item => {
+songsFromDB.forEach(item => {
     const { file } = item;
     const audioUrl = URL.createObjectURL(file);
     const song = {
-        id: playlist.length,
+        id: songs.length,
         file,
         artworkColors: item.artworkColors,
         artworkImageUrl: item.artworkImageUrl,
@@ -228,9 +222,9 @@ songsList.forEach(item => {
         fn: clickSong
     }
     song.controller = folderSongs.add(song, 'fn').name(item.name);
-    playlist.push(song);
+    songs.push(song);
 })
-console.log(playlist);
+console.log(songs);
 
 
 //------------------------------------
@@ -241,7 +235,7 @@ Object.keys(options).forEach(key => {
     if (key == 'volume') {
         volumeSlider = folderOptions.add(options, key, 0, 1, .0001).name(key);
     } else {
-        folderOptions.add(options, key, -1, 1, .0001).name(key)
+        //folderOptions.add(options, key, -1, 1, .0001).name(key)
     }
 })
 
@@ -286,7 +280,6 @@ setInterval(_ => {
     points.setUniform('rand', Math.random());
 }, 10000)
 
-
 update();
 
 // call `points.update()` methods to render a new frame
@@ -296,7 +289,6 @@ function update() {
     points.update();
     requestAnimationFrame(update);
 }
-
 
 /******************************/
 let isMouseMoving = false;
@@ -317,6 +309,3 @@ document.addEventListener('mousemove', e => {
         document.body.style.cursor = 'none';
     }, 1000);
 });
-
-
-
