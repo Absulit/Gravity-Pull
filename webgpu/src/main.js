@@ -76,15 +76,11 @@ function onTimeUpdate() {
     points.setUniform('progress', progress);
 }
 
-function readTags(file) {
+function readTags(song) {
     return new Promise((resolve, reject) => {
-        jsmediatags.read(file, {
-            onSuccess: tag => {
-                resolve({ tag, file }); // Resolve the promise with the tag data
-            },
-            onError: error => {
-                reject({ error, file }); // Reject the promise with the error
-            }
+        jsmediatags.read(song.file, {
+            onSuccess: tag => resolve({ tag, song }),
+            onError: error => reject({ error, song })
         });
     });
 }
@@ -92,7 +88,7 @@ function readTags(file) {
 function loadSong() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = 'audio/mp3, audio/flac, audio/ogg';
+    fileInput.accept = 'audio/mp3, audio/flac, audio/ogg, audio/m4v';
 
     fileInput.addEventListener('change', async e => {
         audio?.pause();
@@ -107,7 +103,8 @@ function loadSong() {
 }
 
 async function onCompleteTags(result) {
-    const { tag, file } = result;
+    const { tag, song } = result;
+    const { file } = song;
     const { title, album, picture } = tag.tags;
     console.log(result);
     let artworkImageUrl = null;
@@ -117,6 +114,8 @@ async function onCompleteTags(result) {
         const base64String = picture.data.reduce((data, byte) => data + String.fromCharCode(byte), '');
         artworkImageUrl = `data:${picture.format};base64,${btoa(base64String)}`;
         artworkColors = await countImageColors(artworkImageUrl);
+        song.artworkImageUrl = artworkImageUrl;
+        song.artworkColors = artworkColors;
         console.log(artworkColors);
         points.setStorageMap('artworkColors', artworkColors.flat());
         points.setUniform('artworkLoaded', 1);
@@ -130,7 +129,10 @@ async function onCompleteTags(result) {
         console.log('No album art found.');
     }
 
-    loadSongInFolder(file, name, artworkImageUrl, artworkColors);
+    // loadSongInFolder(file, name, artworkImageUrl, artworkColors);
+    console.log(song.name);
+
+    folderSongs.add(song, 'fn').name(song.name);
     points.setStorageMap('chars', strToCodes(name));
 }
 
@@ -168,7 +170,7 @@ const songs = [
     }
 ]
 
-function loadSongInFolder(file, name = null, artworkImageUrl = null, artworkColors = null) {
+/*function loadSongInFolder(file, name = null, artworkImageUrl = null, artworkColors = null) {
     const src = URL.createObjectURL(file);
     const song = {
         file,
@@ -179,24 +181,22 @@ function loadSongInFolder(file, name = null, artworkImageUrl = null, artworkColo
         fn: clickSong
     }
     folderSongs.add(song, 'fn').name(song.name);
-}
+}*/
 
 songs.forEach(async (song, index) => {
     console.log(song);
-    if (song.src) {
-        const response = await fetch(song.src);
-        const blob = await response.blob();
-        const file = new File([blob], song.name, { type: blob.type });
-        song.file = file;
-        song.id = index;
-        readTags(file).then(onCompleteTags).catch(response => {
-            const { error, file } = response;
-            console.log(error, file);
-            loadSongInFolder(file)
-        });
-    } else {
-        song.controller = folderSongs.add(song, 'fn').name(song.name);
-    }
+    const response = await fetch(song.src);
+    const blob = await response.blob();
+    const file = new File([blob], song.name, { type: blob.type });
+    song.file = file;
+    song.id = index;
+    readTags(song).then(onCompleteTags).catch(response => {
+        const { error, song } = response;
+        console.log(error, song.file);
+        // loadSongInFolder(file)
+        folderSongs.add(song, 'fn').name(song.name);
+    });
+
 })
 
 //------------------------------------
