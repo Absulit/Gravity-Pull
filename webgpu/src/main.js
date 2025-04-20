@@ -42,11 +42,11 @@ const colorSchemes = {
 folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => points.setUniform('colorScheme', v));
 
 function clickSong() {
-    console.log(this);
-    playSong(this, this.file)
+    playSong(this)
 }
 
-function playSong(song, file) {
+function playSong(song) {
+    const { file } = song;
     const audioUrl = URL.createObjectURL(file);
     const name = song?.name || file.name;
 
@@ -57,15 +57,13 @@ function playSong(song, file) {
     song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
     song?.artworkColors && (artworkLoaded = 1);
     points.setUniform('artworkLoaded', artworkLoaded);
-    console.log(song);
     audio.id = song?.id;
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('ended', async e => {
-        console.log('---- audio complete', e.target);
         const id = +e.target.id;
         const nextSong = songs[id + 1] || songs[0];
-        playSong(nextSong, nextSong.file);
+        playSong(nextSong);
 
     });
     audio.play();
@@ -93,10 +91,18 @@ function loadSong() {
     fileInput.addEventListener('change', async e => {
         audio?.pause();
         const file = e.target.files[0];
-        if (file) {
-            readTags(file).then(onCompleteTags);
-            playSong(null, file);
+        const src = URL.createObjectURL(file);
+        const song = {
+            id: songs.length,
+            file,
+            name: file.name,
+            src,
+            fn: clickSong
         }
+        songs.push(song);
+
+        readTags(song).then(onCompleteTags).catch(onErrorTags);
+        playSong(song);
     });
 
     fileInput.click();
@@ -106,34 +112,52 @@ async function onCompleteTags(result) {
     const { tag, song } = result;
     const { file } = song;
     const { title, album, picture } = tag.tags;
-    console.log(result);
+    const name = `${title} - ${album}`
     let artworkImageUrl = null;
     let artworkColors = null;
-    const name = `${title} - ${album}`
+
     if (picture) {
         const base64String = picture.data.reduce((data, byte) => data + String.fromCharCode(byte), '');
         artworkImageUrl = `data:${picture.format};base64,${btoa(base64String)}`;
         artworkColors = await countImageColors(artworkImageUrl);
         song.artworkImageUrl = artworkImageUrl;
         song.artworkColors = artworkColors;
-        console.log(artworkColors);
         points.setStorageMap('artworkColors', artworkColors.flat());
         points.setUniform('artworkLoaded', 1);
-        await db.songs.add({
-            file,
-            artworkImageUrl,
-            artworkColors,
-            name: name || file.name
-        });
+
     } else {
         console.log('No album art found.');
     }
 
-    // loadSongInFolder(file, name, artworkImageUrl, artworkColors);
-    console.log(song.name);
+    song.name = name || file.name;
+
+
+    if (!song.default) {
+        await db.songs.add({
+            file,
+            artworkImageUrl,
+            artworkColors,
+            name: song.name
+        });
+    }
 
     folderSongs.add(song, 'fn').name(song.name);
     points.setStorageMap('chars', strToCodes(name));
+}
+
+async function onErrorTags(response) {
+    const { error, song } = response;
+    const { name, file } = song;
+
+    if (!song.default) {
+        await db.songs.add({
+            file,
+            name: name || file.name
+        });
+    }
+
+
+    folderSongs.add(song, 'fn').name(song.name);
 }
 
 const controls = [
@@ -154,52 +178,37 @@ folderControls.open();
 
 const songs = [
     {
+        default: true,
         name: 'Pulse 🎵',
         src: './../80s-pulse-synthwave-dude-212407.mp3',
         fn: clickSong
     },
     {
+        default: true,
         name: 'Robot Swarm 🎵',
         src: './../synthwave-80s-robot-swarm-218092.mp3',
         fn: clickSong
     },
     {
+        default: true,
         name: 'Fading Echoes 🎵',
         src: './../mezhdunami-fading-echoes-129291.mp3',
         fn: clickSong
     }
 ]
 
-/*function loadSongInFolder(file, name = null, artworkImageUrl = null, artworkColors = null) {
-    const src = URL.createObjectURL(file);
-    const song = {
-        file,
-        artworkImageUrl,
-        artworkColors,
-        name: name || file.name,
-        src,
-        fn: clickSong
-    }
-    folderSongs.add(song, 'fn').name(song.name);
-}*/
-
 songs.forEach(async (song, index) => {
-    console.log(song);
     const response = await fetch(song.src);
     const blob = await response.blob();
     const file = new File([blob], song.name, { type: blob.type });
     song.file = file;
     song.id = index;
-    readTags(song).then(onCompleteTags).catch(response => {
-        const { error, song } = response;
-        console.log(error, song.file);
-        // loadSongInFolder(file)
-        folderSongs.add(song, 'fn').name(song.name);
-    });
-
+    // readTags(song).then(onCompleteTags).catch(onErrorTags);
+    folderSongs.add(song, 'fn').name(song.name);
 })
 
 //------------------------------------
+
 const db = new Dexie('bhdb');
 db.version(1).stores({
     songs: '++id, file'
@@ -223,7 +232,6 @@ songsFromDB.forEach(item => {
     song.controller = folderSongs.add(song, 'fn').name(item.name);
     songs.push(song);
 })
-console.log(songs);
 
 
 //------------------------------------
