@@ -12,6 +12,7 @@ import { countImageColors } from '../utils.js';
 const points = new Points('canvas');
 const gui = new dat.GUI({ name: 'Points GUI' });
 const folderOptions = gui.addFolder('options');
+const folderControls = gui.addFolder('controls');
 const folderSongs = gui.addFolder('songs');
 
 const playlist = [];
@@ -139,7 +140,7 @@ async function onCompleteTags(result) {
     points.setStorageMap('chars', strToCodes(name));
 }
 
-const songs = [
+const controls = [
     {
         name: 'Load a song 📀',
         fn: loadSong
@@ -148,6 +149,14 @@ const songs = [
         name: 'Pause ⏸️',
         fn: _ => audio?.pause()
     },
+];
+
+controls.forEach(control => {
+    folderControls.add(control, 'fn').name(control.name);
+});
+folderControls.open();
+
+const songs = [
     {
         name: 'Pulse 🎵',
         src: './../80s-pulse-synthwave-dude-212407.mp3',
@@ -187,11 +196,10 @@ songs.forEach(async song => {
         song.file = file;
         song.id = playlist.length;
         playlist.push(song);
-        readTags(file).then(onCompleteTags).catch((response) => {
+        readTags(file).then(onCompleteTags).catch(response => {
             const { error, file } = response;
             console.log(error, file);
             loadSongInFolder(file)
-
         });
     } else {
         song.controller = folderSongs.add(song, 'fn').name(song.name);
