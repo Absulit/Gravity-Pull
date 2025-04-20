@@ -58,7 +58,7 @@ function playSong(song, file) {
     song?.artworkColors && (artworkLoaded = 1);
     points.setUniform('artworkLoaded', artworkLoaded);
     console.log(song);
-    audio.id = song.id;
+    audio.id = song?.id;
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('ended', async e => {
@@ -181,15 +181,14 @@ function loadSongInFolder(file, name = null, artworkImageUrl = null, artworkColo
     folderSongs.add(song, 'fn').name(song.name);
 }
 
-songs.forEach(async song => {
+songs.forEach(async (song, index) => {
     console.log(song);
     if (song.src) {
         const response = await fetch(song.src);
         const blob = await response.blob();
         const file = new File([blob], song.name, { type: blob.type });
         song.file = file;
-        song.id = songs.length;
-        songs.push(song);
+        song.id = index;
         readTags(file).then(onCompleteTags).catch(response => {
             const { error, file } = response;
             console.log(error, file);
