@@ -5,6 +5,7 @@ import vert from './renderpasses/renderpass0/vert.js';
 import * as dat from 'datgui';
 import { Dexie } from 'https://unpkg.com/dexie/dist/modern/dexie.mjs';
 import { countImageColors } from '../utils.js';
+import { readTags, strToCodes } from './utils.js';
 
 /**
  * @type {Points}
@@ -23,10 +24,6 @@ const options = {
     sliderA: 0.619,
     sliderB: 0.861,
     sliderC: 0.508,
-}
-
-function strToCodes(str) {
-    return Array.from(str).map(char => char.charCodeAt(0))
 }
 
 const selectedScheme = {
@@ -72,15 +69,6 @@ function playSong(song) {
 function onTimeUpdate() {
     const progress = audio.currentTime / audio.duration;
     points.setUniform('progress', progress);
-}
-
-function readTags(song) {
-    return new Promise((resolve, reject) => {
-        jsmediatags.read(song.file, {
-            onSuccess: tag => resolve({ tag, song }),
-            onError: error => reject({ error, song })
-        });
-    });
 }
 
 function loadSong() {
