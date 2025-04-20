@@ -189,9 +189,10 @@ fn main(
     // let uvrRotateMix1 = (pixelateUV(PIXELATEDSIZE * c1, PIXELATEDSIZE * c1, uvr) + (uvrRotateMix0 * 4)) / 5;
     // let uvrRotate = mix(uvrRotateMix0, uvrRotateMix1, step(.2, c7));
 
-    let feedbackUV = ((uvrRotate+center) / fadeRotate) - center;
-    // let feedbackUV = rotateVector(uvr_minus_center, tsq * 0) + center;
-    let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, false);
+    let feedbackUV = ((uvrRotate + center) / fadeRotate) - center;
+    var feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, false);
+    feedbackColor = mix(feedbackColor, vec4f(), 1-FEEDBACKFADE);
+    feedbackColor = feedbackColor * step(.01, feedbackColor.a);
 
     let height = 0.;
     let lineMask = sdfLine2(vec2(0, height + audioX) * ratio, vec2(1, height + audioX) * ratio, .005, uvr);
@@ -280,7 +281,9 @@ fn main(
         }
     }
 
-    var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor * FEEDBACKFADE, layer(stringColor2, stringColor));
+
+
+    var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor, layer(stringColor2, stringColor));
     if(colorScheme == 3){
         finalColor = layer(bg, finalColor);
     }
