@@ -113,7 +113,7 @@ fn sdRectangle2(position0:vec2f, position1:vec2f, uv:vec2f) -> f32 {
 const NUMCHARS = 128;
 const MAXBITS = 256;
 const CHLEN = 0.125;
-const DINTENSITY = 0.0151;
+const DINTENSITY = .0041;//0.0151;
 const B = vec3(); // black
 const DWHITE = vec4f(2); // double white to avoid washed out bg
 const TRIROTATION = .00001;
@@ -189,7 +189,8 @@ fn main(
     // let uvrRotateMix1 = (pixelateUV(PIXELATEDSIZE * c1, PIXELATEDSIZE * c1, uvr) + (uvrRotateMix0 * 4)) / 5;
     // let uvrRotate = mix(uvrRotateMix0, uvrRotateMix1, step(.2, c7));
 
-    let feedbackUV = uvrRotate / fadeRotate;
+    let feedbackUV = ((uvrRotate+center) / fadeRotate) - center;
+    // let feedbackUV = rotateVector(uvr_minus_center, tsq * 0) + center;
     let feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, false);
 
     let height = 0.;
