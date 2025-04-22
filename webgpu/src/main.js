@@ -330,6 +330,10 @@ async function loadSongFromURL() {
         readTags(song).then(onCompleteTags).catch(onErrorTags);
         playSong(song);
     }
+
+    params.delete('m');
+    url.search = params.toString();
+    window.history.replaceState(null, '', url.toString());
 }
 
 loadSongFromURL()
