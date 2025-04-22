@@ -304,3 +304,32 @@ document.addEventListener('mousemove', e => {
         document.body.style.cursor = 'none';
     }, 1000);
 });
+
+/******************************/
+async function loadSongFromURL() {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const src = params.get('m');
+    console.log(src);
+
+    if (src) {
+        const response = await fetch(src);
+        const blob = await response.blob();
+        const name = src.split('/').slice(-1);
+        const file = new File([blob], name, { type: blob.type });
+
+        const song = {
+            id: songs.length,
+            file,
+            name: file.name,
+            src,
+            fn: clickSong
+        }
+        songs.push(song);
+
+        readTags(song).then(onCompleteTags).catch(onErrorTags);
+        playSong(song);
+    }
+}
+
+loadSongFromURL()
