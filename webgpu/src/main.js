@@ -154,8 +154,8 @@ const controls = [
         fn: loadSong
     },
     {
-        name: 'Pause ⏸️',
-        fn: _ => audio?.pause()
+        name: 'Play/Pause ⏯️',
+        fn: _ => audio?.paused ? audio?.play() : audio?.pause()
     },
 ];
 
