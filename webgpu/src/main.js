@@ -79,20 +79,41 @@ function loadSong() {
     fileInput.addEventListener('change', async e => {
         audio?.pause();
         const file = e.target.files[0];
-        const src = URL.createObjectURL(file);
-        const song = {
-            id: songs.length,
-            file,
-            name: file.name,
-            src,
-            fn: clickSong
-        }
-        songs.push(song);
-
-        readTags(song).then(onCompleteTags).catch(onErrorTags);
+        const song = loadFile(file);
         playSong(song);
     });
 
+    fileInput.click();
+}
+
+function loadFile(file) {
+    const src = URL.createObjectURL(file);
+    const song = {
+        id: songs.length,
+        file,
+        name: file.name,
+        src,
+        fn: clickSong
+    }
+    songs.push(song);
+
+    readTags(song).then(onCompleteTags).catch(onErrorTags);
+
+    return song;
+}
+
+function loadFolder() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.webkitdirectory = 'true';
+    fileInput.directory = 'true';
+
+    fileInput.addEventListener('change', e => {
+        const files = Array.from(e.target.files);
+        const filteredFiles = files.filter(file => file.type.startsWith('audio/')).sort();
+        console.log('Filtered Files:', filteredFiles);
+        filteredFiles.forEach(f => loadFile(f));
+    });
     fileInput.click();
 }
 
@@ -154,10 +175,25 @@ const controls = [
         fn: loadSong
     },
     {
+        name: 'Load a folder 📂',
+        fn: loadFolder
+    },
+    {
         name: 'Play/Pause ⏯️',
         fn: _ => audio?.paused ? audio?.play() : audio?.pause()
     },
+    {
+        name: 'Delete playlist 🗑️',
+        fn: deletePlaylist
+    },
 ];
+
+function deletePlaylist() {
+    if (confirm('Delete all elements from the playlist?')) {
+        db.songs.clear();
+        location.reload();
+    }
+}
 
 controls.forEach(control => {
     folderControls.add(control, 'fn').name(control.name);

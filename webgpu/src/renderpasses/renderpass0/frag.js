@@ -158,7 +158,7 @@ fn main(
     let t = sdfCircle(center, audio1, audio1, uvr);
     let sq = sdfSquare(center, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
 
-    let rectMask = sdRectangle1( center, vec2f(.5,.5) + vec2f(.4 * c0,.4 * c0), .024 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
+    let rectMask = sdRectangle1( center, vec2f(.7) + vec2f(.2) * c0, .024 * c3 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
 
     // var tsq = t;
     // if(params.rand > .5){
@@ -178,7 +178,7 @@ fn main(
     let uvrRotate0 = rotateVector(uvr_minus_center, PIMILLI) + center; // option 1
     let uvrRotate1 = rotateVector(uvr_minus_center, s) + center; // option 2 s
     let uvrRotate2 = rotateVector(uvr_minus_center, tsq * rotDir) + center; // option 3 t sq
-    let uvrRotate3 = rotateVector(uvr_minus_center, rectMask * d2.y * rotDir) + center; // option 4 rect
+    let uvrRotate3 = ((uvr_minus_center+ rectMask  * vec2(1,1) )+center)  ; // option 4 rect
 
     var uvrRotate = (uvrRotate0 + uvrRotate1 + uvrRotate2 + uvrRotate3) / 4;
     if(c7 > .2){
