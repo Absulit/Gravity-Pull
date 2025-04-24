@@ -170,8 +170,16 @@ fn main(
     let d = uvr - center;
 
 
+    // if (step(.001, c2) == 1) {
+    //     variables.fadePercentage = clamp(variables.fadePercentage + .016, 0.0, 1.0);
+    // } else {
+    //     variables.fadePercentage = clamp(variables.fadePercentage - .016, 0.0, 1.0);
+    // }
+
+
     let c6gtp3 = step(.3, c6); // if(c6 > .3)
     // let fadeRotate = mix(1-d2 * DINTENSITY, 1-d * DINTENSITY, c6gtp3);
+    // let fadeRotate = mix(1-d2 * DINTENSITY * variables.fadePercentage, 1-d * DINTENSITY * variables.fadePercentage, c6gtp3);
     let fadeRotate = mix( mix(1-d * DINTENSITY, 1-d2 * DINTENSITY, c6gtp3), mix(1-d2 * DINTENSITY, 1-d * DINTENSITY, c6gtp3), smoothstep(0., .1, c2) ) ;
     let rotDir = mix(1., -1, c6gtp3);
 
