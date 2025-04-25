@@ -203,19 +203,19 @@ const songs = [
     {
         default: true,
         name: 'Pulse 🎵',
-        src: './../music/80s-pulse-synthwave-dude-212407.mp3',
+        src: './music/80s-pulse-synthwave-dude-212407.mp3',
         fn: clickSong
     },
     {
         default: true,
         name: 'Robot Swarm 🎵',
-        src: './../music/synthwave-80s-robot-swarm-218092.mp3',
+        src: './music/synthwave-80s-robot-swarm-218092.mp3',
         fn: clickSong
     },
     {
         default: true,
         name: 'Fading Echoes 🎵',
-        src: './../music/mezhdunami-fading-echoes-129291.mp3',
+        src: './music/mezhdunami-fading-echoes-129291.mp3',
         fn: clickSong
     }
 ]
