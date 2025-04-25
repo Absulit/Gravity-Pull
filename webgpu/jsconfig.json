@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+      "target": "ES6",
+      "baseUrl": "./",
+      "paths": {
+        "points": ["./src/points/absulit.points.module.js"],
+
+        "datasize": ["./src/points/data-size.js"],
+        "renderpass": ["./src/points/RenderPass.js"],
+        "shadertype": ["./src/points/ShaderType.js"],
+
+        "animation": ["./src/points/core/animation.js"],
+        "audio": ["./src/points/core/audio.js"],
+        "color": ["./src/points/core/color.js"],
+        "debug": ["./src/points/core/debug.js"],
+        "effects": ["./src/points/core/effects.js"],
+        "image": ["./src/points/core/image.js"],
+        "math": ["./src/points/core/math.js"],
+        "noise2d": ["./src/points/core/noise2d.js"],
+        "classicnoise2d": ["./src/points/core/classicnoise2d.js"],
+        "random": ["./src/points/core/random.js"],
+        "renderpasses": ["./src/points/RenderPasses.js"],
+        "sdf": ["./src/points/core/sdf.js"],
+
+        "datgui": ["./src/points/vendor/datgui/dat.gui.module.js"]
+      }
+    }
+  }
