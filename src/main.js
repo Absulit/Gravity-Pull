@@ -4,8 +4,7 @@ import frag0 from './renderpasses/renderpass0/frag.js';
 import vert from './renderpasses/renderpass0/vert.js';
 import * as dat from 'datgui';
 import { Dexie } from 'https://unpkg.com/dexie/dist/modern/dexie.mjs';
-import { countImageColors } from '../utils.js';
-import { readTags, strToCodes } from './utils.js';
+import { countImageColors, readTags, strToCodes } from './utils.js';
 
 /**
  * @type {Points}
@@ -204,19 +203,19 @@ const songs = [
     {
         default: true,
         name: 'Pulse 🎵',
-        src: './../80s-pulse-synthwave-dude-212407.mp3',
+        src: './../music/80s-pulse-synthwave-dude-212407.mp3',
         fn: clickSong
     },
     {
         default: true,
         name: 'Robot Swarm 🎵',
-        src: './../synthwave-80s-robot-swarm-218092.mp3',
+        src: './../music/synthwave-80s-robot-swarm-218092.mp3',
         fn: clickSong
     },
     {
         default: true,
         name: 'Fading Echoes 🎵',
-        src: './../mezhdunami-fading-echoes-129291.mp3',
+        src: './../music/mezhdunami-fading-echoes-129291.mp3',
         fn: clickSong
     }
 ]
