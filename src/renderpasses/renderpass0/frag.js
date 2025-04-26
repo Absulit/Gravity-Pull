@@ -217,10 +217,11 @@ fn main(
     var stringMask2 = 0.;
     let textScale = 2.476 * ratio.y + c0;
     let textUVR = uvr / textScale;
+    let spaceRatio = .0017 * ratio.x;
     for (var index = 0; index < NUMCHARS; index++) {
         let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(f32(index), 0);
-        let space = .002261 * vec2(f32(index), 0);
+        let space = spaceRatio * vec2(f32(index), 0);
         stringMask += sprite(font, textImageSampler, space + fontPosition + charPosition, textUVR, charIndex - charOffset, charSize).x;
         stringMask2 += sprite(font, textImageSampler, space + fontPosition + charPosition, textUVR + .0005, charIndex - charOffset, charSize).x;
     }

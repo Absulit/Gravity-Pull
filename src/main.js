@@ -304,6 +304,7 @@ await points.init(renderPasses);
 points.fitWindow = true;
 
 document.addEventListener('dblclick', _ => points.fullscreen = !points.fullscreen);
+points.canvas.addEventListener('click', _ => audio?.paused ? audio?.play() : audio?.pause());
 
 setInterval(_ => {
     console.log('---- 10s');
