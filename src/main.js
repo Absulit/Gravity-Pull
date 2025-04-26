@@ -17,6 +17,7 @@ const folderSongs = gui.addFolder('songs');
 
 let audio = null;
 let loop = false;
+let pauseClickTimeout = null;
 
 const options = {
     volume: 0.500,
@@ -35,7 +36,10 @@ const colorSchemes = {
     Artwork: 2,
     Negative: 3
 }
-folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => points.setUniform('colorScheme', v));
+folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => {
+    points.setUniform('colorScheme', v)
+    saveOption('scheme', v);
+});
 
 function clickSong() {
     playSong(this)
@@ -231,11 +235,35 @@ songs.forEach(async (song, index) => {
 })
 
 //------------------------------------
+async function saveOption(key, value) {
+    await db.options.put({ key, value });
+}
+
+async function getOption(key) {
+    const option = await db.options.get(key);
+    return option ? option.value : null;
+}
+
+
 
 const db = new Dexie('bhdb');
 db.version(1).stores({
-    songs: '++id, file'
+    songs: '++id, file',
+    options: 'key'
 });
+const volume = await getOption('volume');
+if (volume) {
+    options.volume = volume;
+}
+
+const scheme = await getOption('scheme');
+console.log(scheme);
+
+if (scheme) {
+    selectedScheme['Color Scheme'] = scheme;
+    points.setUniform('colorScheme', scheme)
+    folderOptions.updateDisplay();
+}
 
 const songsFromDB = await db.songs
     .toArray();
@@ -269,7 +297,10 @@ Object.keys(options).forEach(key => {
     }
 })
 
-volumeSlider.onChange(value => audio.volume = value);
+volumeSlider.onChange(value => {
+    audio.volume = value;
+    saveOption('volume', value);
+});
 
 folderOptions.open();
 folderSongs.open();
@@ -303,7 +334,20 @@ await points.init(renderPasses);
 
 points.fitWindow = true;
 
-document.addEventListener('dblclick', _ => points.fullscreen = !points.fullscreen);
+points.canvas.addEventListener('click', _ => {
+    if (pauseClickTimeout) {
+        return;
+    }
+    pauseClickTimeout = setTimeout(() => {
+        audio?.paused ? audio?.play() : audio?.pause();
+        pauseClickTimeout = null;
+    }, 300);
+});
+document.addEventListener('dblclick', _ => {
+    clearTimeout(pauseClickTimeout);
+    pauseClickTimeout = null;
+    points.fullscreen = !points.fullscreen;
+});
 
 setInterval(_ => {
     console.log('---- 10s');
