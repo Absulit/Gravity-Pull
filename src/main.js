@@ -17,6 +17,7 @@ const folderSongs = gui.addFolder('songs');
 
 let audio = null;
 let loop = false;
+let pauseClickTimeout = null;
 
 const options = {
     volume: 0.500,
@@ -303,8 +304,20 @@ await points.init(renderPasses);
 
 points.fitWindow = true;
 
-document.addEventListener('dblclick', _ => points.fullscreen = !points.fullscreen);
-points.canvas.addEventListener('click', _ => audio?.paused ? audio?.play() : audio?.pause());
+points.canvas.addEventListener('click', _ => {
+    if(pauseClickTimeout){
+        return;
+    }
+    pauseClickTimeout = setTimeout(() => {
+        audio?.paused ? audio?.play() : audio?.pause();
+        pauseClickTimeout = null;
+    }, 300);
+});
+document.addEventListener('dblclick', _ => {
+    clearTimeout(pauseClickTimeout);
+    pauseClickTimeout = null;
+    points.fullscreen = !points.fullscreen;
+});
 
 setInterval(_ => {
     console.log('---- 10s');
