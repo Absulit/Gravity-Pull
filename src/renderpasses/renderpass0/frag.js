@@ -226,8 +226,14 @@ fn main(
         stringMask2 += sprite(font, textImageSampler, space + fontPosition + charPosition, textUVR + .0005, charIndex - charOffset, charSize).x;
     }
 
-
-
+    var messageStringMask = 0.;
+    let messagePosition = vec2(.15, .19) * ratio;
+    for (var index = 0; index < 21; index++) {
+        let charIndex = u32(message[index]);
+        let charPosition = charSizeF32 * vec2(f32(index), sin(params.time + f32(index) * .1));
+        let space = spaceRatio * vec2(f32(index), 0);
+        messageStringMask += sprite(font, textImageSampler, space + messagePosition + charPosition, textUVR, charIndex - charOffset, charSize).x;
+    }
 
 
     var equiTriUV = uvr_minus_center / .156; // .31
@@ -302,7 +308,7 @@ fn main(
     // let finalColor = layer(bg, audioWave);
     // let finalColor = vec4f(1,s,0,1);
 
-    return finalColor;
+    return finalColor + (messageStringMask * vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1) * params.showMessage * .1);
     // return vec4(st, 0, 1);
 }
 `;
