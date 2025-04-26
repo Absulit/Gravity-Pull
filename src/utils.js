@@ -23,7 +23,7 @@ export async function countImageColors(src) {
             const side = 16;
             canvas.width = side;
             canvas.height = side;
-            ctx.drawImage(img, 0, 0,side,side);
+            ctx.drawImage(img, 0, 0, side, side);
 
 
 
@@ -59,5 +59,4 @@ export async function countImageColors(src) {
         };
 
     });
-
 }
