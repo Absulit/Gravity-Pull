@@ -333,9 +333,15 @@ const renderPasses = [
     new RenderPass(vert, frag0, null),
 ];
 
-await points.init(renderPasses);
+if (await points.init(renderPasses)) {
+    points.fitWindow = true;
+    update();
+} else {
+    const el = document.getElementById('nowebgpu');
+    el.classList.toggle('show');
+}
 
-points.fitWindow = true;
+
 
 points.canvas.addEventListener('click', _ => {
     if (pauseClickTimeout) {
