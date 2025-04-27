@@ -281,6 +281,7 @@ songsFromDB.forEach(item => {
         artworkColors: item.artworkColors,
         artworkImageUrl: item.artworkImageUrl,
         name: item.name,
+        title: item.title,
         src: audioUrl,
         fn: clickSong
     }
