@@ -425,3 +425,55 @@ async function loadSongFromURL() {
 }
 
 loadSongFromURL()
+
+
+async function analyzeDesktopAudio() {
+    try {
+        // Step 1: Capture the desktop audio stream
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+            audio: true
+        });
+
+        console.log("MediaStream tracks:", stream.getTracks()); // Lists all tracks
+        console.log("Audio tracks:", stream.getAudioTracks()); // Lists audio tracks
+
+        if (stream.getAudioTracks().length === 0) {
+            console.error("No audio tracks in MediaStream!");
+        }
+
+        // Step 2: Create an AudioContext
+        const audioContext = new AudioContext();
+
+        // Step 3: Connect the audio stream to the AudioContext
+        const source = audioContext.createMediaStreamSource(stream);
+
+        // Step 4: Create an AnalyserNode for visualization
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048; // Change this for different frequency resolutions
+        const data = new Uint8Array(analyser.frequencyBinCount);
+
+        // Connect the source to the analyser
+        source.connect(analyser);
+
+        // Step 5: Perform real-time analysis
+        function visualize() {
+            // Get frequency data
+            analyser.getByteFrequencyData(data);
+
+            // Log data or send it to a visualization function
+            console.log(data); // Replace this with your visualization logic
+
+            // Continue the visualization loop
+            requestAnimationFrame(visualize);
+        }
+
+        // Start the visualization
+        visualize();
+        console.log("Real-time audio analysis started...");
+    } catch (error) {
+        console.error("Error capturing or analyzing audio:", error);
+    }
+}
+
+// Call the function
+analyzeDesktopAudio();
