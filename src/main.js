@@ -42,7 +42,8 @@ folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => {
 });
 
 function clickSong() {
-    playSong(this)
+    points.setUniform('showMessage', 0);
+    playSong(this);
 }
 
 function playSong(song) {
@@ -318,11 +319,13 @@ points.setTexture2d('feedbackTexture', true);
 
 audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', options.volume, loop, false);
 
+points.setUniform('showMessage', 1);
 points.setUniform('rand', 0);
 points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
 // points.setUniform('somecolor', colors.color2, 'vec3f');
 points.setStorageMap('chars', [15, 14, 8, 13, 19, 18], 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
+points.setStorageMap('message', strToCodes('Select a song to Play'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
 points.setStorage('variables', 'Variables');
 await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
@@ -330,9 +333,15 @@ const renderPasses = [
     new RenderPass(vert, frag0, null),
 ];
 
-await points.init(renderPasses);
+if (await points.init(renderPasses)) {
+    points.fitWindow = true;
+    update();
+} else {
+    const el = document.getElementById('nowebgpu');
+    el.classList.toggle('show');
+}
 
-points.fitWindow = true;
+
 
 points.canvas.addEventListener('click', _ => {
     if (pauseClickTimeout) {

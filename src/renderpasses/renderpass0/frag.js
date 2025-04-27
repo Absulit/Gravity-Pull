@@ -1,7 +1,7 @@
 import { fnusin, fusin } from 'animation';
 import { GREEN, layer, RED, WHITE } from 'color';
 import { sprite, texturePosition } from 'image';
-import { PI, rotateVector, TAU } from 'math';
+import { PI, rotateVector } from 'math';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'sdf';
 import { structs } from './structs.js';
 
@@ -16,7 +16,7 @@ ${sdfCircle}
 ${sdfSquare}
 ${rotateVector}
 ${sprite}
-${TAU}
+
 ${PI}
 ${layer}
 ${fusin}
@@ -102,6 +102,18 @@ fn sdRectangle1(position:vec2f, size:vec2f, feather:f32, uv:vec2f) -> f32 {
     return st;
 }
 
+fn sdfngon(position:vec2f, numSides:f32, radius:f32, feather:f32, uv:vec2f) -> f32 {
+    let uv2 = uv - position;
+    let angle = atan2(uv2.y, uv2.x);
+    let distance = length(uv2);
+
+    let border = -.05;
+
+    let sector = TAU / numSides;
+    let d = 1 - cos(floor(0.5 + angle / sector) * sector - angle) * length(uv2) - radius;
+    return mix(0,1, step(border, d) * step(d, border + feather));
+}
+
 fn sdRectangle2(position0:vec2f, position1:vec2f, uv:vec2f) -> f32 {
     let d = max(position0 - uv, uv - position1);
     // If the point is inside the rectangle, return the negative distance to the closest edge
@@ -109,7 +121,8 @@ fn sdRectangle2(position0:vec2f, position1:vec2f, uv:vec2f) -> f32 {
 }
 
 
-
+const TAU = PI * 2; // TODO: fix on main library
+const TAUQUARTER = TAU * .25;
 const NUMCHARS = 128;
 const MAXBITS = 256;
 const CHLEN = 0.125;
@@ -226,18 +239,25 @@ fn main(
         stringMask2 += sprite(font, textImageSampler, space + fontPosition + charPosition, textUVR + .0005, charIndex - charOffset, charSize).x;
     }
 
+    var messageStringMask = 0.;
+    let messagePosition = vec2(.15, .19) * ratio;
+    for (var index = 0; index < 21; index++) {
+        let charIndex = u32(message[index]);
+        let charPosition = charSizeF32 * vec2(f32(index), sin(params.time + f32(index) * .1));
+        let space = spaceRatio * vec2(f32(index), 0);
+        messageStringMask += sprite(font, textImageSampler, space + messagePosition + charPosition, textUVR, charIndex - charOffset, charSize).x;
+    }
 
 
-
-
-    var equiTriUV = uvr_minus_center / .156; // .31
-    let c2Visible = step(.001, c2); // to revert value only if c2 (triangle) is visible
+    let minNumSides = 3.;
+    let numSides = minNumSides + floor(5 * c7);
+    var equiTriUV = uvr_minus_center / .156 * minNumSides / numSides; // .31
+    let c2Visible = step(.001, c2); // to revert value only if c2 (poligon) is visible
     variables.triRotation += TRIROTATION * c7 * c6 + c5 * TRIROTATION; // rotate gradually
     variables.triRotation -= .000001 * step(0., variables.triRotation) * c2Visible;
     variables.triRotation = variables.triRotation % TAU; // cap rotation to avoid it getting stuck
-    equiTriUV = rotateVector(equiTriUV, variables.triRotation);
-    let equiTriMask = sdfEquiTriangle2(vec2f(), 1 - c2 * .5, .007, equiTriUV) * c2Visible;
-
+    equiTriUV = rotateVector(equiTriUV, variables.triRotation + TAUQUARTER);
+    let poliMask = sdfngon(vec2f(), numSides, .5 + (c7 * .5), .01, equiTriUV) * c2Visible;
 
     let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
 
@@ -251,7 +271,7 @@ fn main(
     var audioWave = vec4f();
     var audioWave2 = vec4f();
     var progressBar = vec4f();
-    var triangle = vec4f();
+    var poligon = vec4f();
     var stringColor = vec4f();
     var stringColor2 = vec4f();
 
@@ -262,15 +282,15 @@ fn main(
             audioWave = vec4f(lineMask, lineMask*audioX, lineMask*uvrRotate.x, 1);
             audioWave2 = vec4f(lineMask2, lineMask2*audioX2, lineMask2*uvrRotate.x, 1);
             progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
-            triangle = vec4f(1,.4 + .1 * c4, step(.5, c2) * .4,1) * equiTriMask;
-            stringColor = stringMask * mix(vec4(1 * fusin(.132) , 1 * fusin(.586) ,0,1), vec4(1,.5, 1 * fusin(.7589633), 1), c0);
-            stringColor2 = stringMask2 * mix( vec4( 1-vec3(1 * fusin(.132) , 1 * fusin(.586), 0), 1), vec4(1-vec3(1,.5, 1 * fusin(.7589633)), 1), c0);
+            poligon = vec4f(1,.4 + .1 * c4, step(.5, c2) * .4,1) * poliMask;
+            stringColor = stringMask * mix(vec4(fusin(.132) , fusin(.586) ,0,1), vec4(1,.5, fusin(.7589633), 1), c0);
+            stringColor2 = stringMask2 * mix( vec4( 1-vec3(fusin(.132) , fusin(.586), 0), 1), vec4(1-vec3(1,.5, fusin(.7589633)), 1), c0);
         }
         case 1 { // matrix
             audioWave = vec4f( vec3f(.129,.145,.039) * lineMask, 1);
             audioWave2 = vec4f( vec3f(.231,.274,.117) * lineMask2, 1);
             progressBar = vec4f( vec3f(.2,.282,.152) * progressBarMask, 1);
-            triangle = vec4f( vec3f(.309,.4,.290) * equiTriMask, 1);
+            poligon = vec4f( vec3f(.309,.4,.290) * poliMask, 1);
             stringColor = vec4f( .572,.717,.549, 1) * stringMask;
             stringColor2 = stringMask2 * GREEN;
         }
@@ -278,7 +298,7 @@ fn main(
             audioWave = vec4f( mix(artworkColors[9].rgb, artworkColors[0].rgb, audioX) * lineMask, 1);
             audioWave2 = vec4f( mix(artworkColors[8].rgb, artworkColors[1].rgb,audioX) * lineMask2, 1);
             progressBar = vec4f( mix(artworkColors[7].rgb, artworkColors[2].rgb, uvrRotate.x) * progressBarMask, 1);
-            triangle = vec4f( mix(artworkColors[6].rgb, artworkColors[3].rgb, c4) * equiTriMask, 1);
+            poligon = vec4f( mix(artworkColors[6].rgb, artworkColors[3].rgb, c4) * poliMask, 1);
             stringColor = mix(artworkColors[5], artworkColors[4], c0) * stringMask;
             stringColor2 = stringMask2 * WHITE;
         }
@@ -287,7 +307,7 @@ fn main(
             audioWave = vec4f( B * (1-lineMask), lineMask);
             audioWave2 = vec4f( B  * (1-lineMask2), lineMask2);
             progressBar = vec4f( B * (1-progressBarMask), progressBarMask);
-            triangle = vec4f( B  * (1-equiTriMask), equiTriMask);
+            poligon = vec4f( B  * (1-poliMask), poliMask);
             stringColor = vec4f(vec3f(1-stringMask), stringMask);
             stringColor2 = stringMask2 * WHITE;
         }
@@ -295,15 +315,16 @@ fn main(
 
 
 
-    var finalColor = layer(audioWave2 + audioWave + progressBar + triangle + feedbackColor, layer(stringColor2, stringColor));
+    var finalColor = layer(audioWave2 + audioWave + progressBar + poligon + feedbackColor, layer(stringColor2, stringColor));
     if(colorScheme == 3){
         finalColor = layer(bg, finalColor);
     }
     // let finalColor = layer(bg, audioWave);
     // let finalColor = vec4f(1,s,0,1);
 
-    return finalColor;
-    // return vec4(st, 0, 1);
+    return finalColor + (messageStringMask * WHITE * params.showMessage * .1);
+    // return finalColor + (poliMask * WHITE * params.showMessage * .1);
+    // return poliMask * WHITE;
 }
 `;
 
