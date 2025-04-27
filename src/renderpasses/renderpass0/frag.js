@@ -139,6 +139,7 @@ const TRIROTATION = .00001;
 const PIXELATEDSIZE = 100;
 const PIMILLI = PI * .001;
 const FEEDBACKFADE = .98;
+const FEEDBACKFADEN = 1-FEEDBACKFADE;
 const charSize = vec2(8u,22u);
 const charOffset = 32u; // A is 33
 const maxCircleRadius = .9;
@@ -221,12 +222,14 @@ fn main(
 
     let feedbackUV = ((uvrRotate + center) / fadeRotate) - center;
     var feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, false);
-    feedbackColor = mix(feedbackColor, vec4f(), 1-FEEDBACKFADE);
+    feedbackColor = mix(feedbackColor, vec4f(), FEEDBACKFADEN);
     feedbackColor = feedbackColor * step(.01, feedbackColor.a);
 
     let height = 0.;
-    let lineMask = sdfLine2(vec2(0, height + audioX) * ratio, vec2(1, height + audioX) * ratio, .005, uvr);
-    let lineMask2 = sdfLine2(vec2(0, height + audioX2) * ratio, vec2(1, height + audioX2) * ratio, .005, uvr);
+    let heightM1 = height + audioX;
+    let heightM2 = height + audioX2;
+    let lineMask = sdfLine2(vec2(0, heightM1) * ratio, vec2(1, heightM1) * ratio, .005, uvr);
+    let lineMask2 = sdfLine2(vec2(0, heightM2) * ratio, vec2(1, heightM2) * ratio, .005, uvr);
 
     let fontPosition = vec2(.003, 0.) * ratio;
     let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
@@ -249,13 +252,15 @@ fn main(
     }
 
     var messageStringMask = 0.;
-    let messagePosition = vec2(.15, .19) * ratio;
-    for (var index = 0; index < 21; index++) {
-        let indexF32 = f32(index);
-        let charIndex = u32(message[index]);
-        let charPosition = charSizeF32 * vec2(indexF32, sin(params.time + indexF32 * .1));
-        let space = spaceRatio * vec2(indexF32, 0);
-        messageStringMask += sprite(font, textImageSampler, space + messagePosition + charPosition, textUVR, charIndex - charOffset, charSize).x;
+    if(params.showMessage == 1.){
+        let messagePosition = vec2(.15, .19) * ratio;
+        for (var index = 0; index < 21; index++) {
+            let indexF32 = f32(index);
+            let charIndex = u32(message[index]);
+            let charPosition = charSizeF32 * vec2(indexF32, sin(params.time + indexF32 * .1));
+            let space = spaceRatio * vec2(indexF32, 0);
+            messageStringMask += sprite(font, textImageSampler, space + messagePosition + charPosition, textUVR, charIndex - charOffset, charSize).x;
+        }
     }
 
 
