@@ -129,7 +129,7 @@ const MATRIX4 = vec4f(.572,.717,.549, 1);
 
 const TAU = PI * 2; // TODO: fix on main library
 const TAUQUARTER = TAU * .25;
-const NUMCHARS = 128;
+const NUMCHARS = 30;
 const MAXBITS = 256;
 const CHLEN = 0.125;
 const DINTENSITY = .0041;//0.0151;

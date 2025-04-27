@@ -42,18 +42,19 @@ folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => {
 });
 
 function clickSong() {
-    points.setUniform('showMessage', 0);
     playSong(this);
 }
 
 function playSong(song) {
     const { file } = song;
+    points.setUniform('showMessage', 0);
     const audioUrl = URL.createObjectURL(file);
     const name = song?.name || file.name;
+    const title = song?.title || name;
 
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, options.volume, false, false);
-    points.setStorageMap('chars', strToCodes(name));
+    points.setStorageMap('chars', strToCodes(title));
     let artworkLoaded = 0;
     song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
     song?.artworkColors && (artworkLoaded = 1);
@@ -143,6 +144,7 @@ async function onCompleteTags(result) {
     }
 
     song.name = name || file.name;
+    song.title = title || name;
 
 
     if (!song.default) {
@@ -150,12 +152,13 @@ async function onCompleteTags(result) {
             file,
             artworkImageUrl,
             artworkColors,
-            name: song.name
+            name: song.name,
+            title: song.title
         });
     }
 
     folderSongs.add(song, 'fn').name(song.name);
-    points.setStorageMap('chars', strToCodes(name));
+    points.setStorageMap('chars', strToCodes(title));
 }
 
 async function onErrorTags(response) {
