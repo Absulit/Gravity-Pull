@@ -1,7 +1,7 @@
 import { fnusin, fusin } from 'animation';
 import { GREEN, layer, RED, WHITE } from 'color';
 import { sprite, texturePosition } from 'image';
-import { PI, rotateVector } from 'math';
+import { PHI, PI, rotateVector } from 'math';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'sdf';
 import { structs } from './structs.js';
 
@@ -16,7 +16,7 @@ ${sdfCircle}
 ${sdfSquare}
 ${rotateVector}
 ${sprite}
-
+${PHI}
 ${PI}
 ${layer}
 ${fusin}
@@ -169,7 +169,7 @@ fn main(
 
     let s = sdfCircle(center, maxCircleRadius * c4, .1 * audioX, uvr);
     let t = sdfCircle(center, audio1, audio1, uvr);
-    let sq = sdfSquare(center, maxCircleRadius * c4, .1 * c4, TAU * audio1, uvr);
+    let sq = sdfSquare(center, maxCircleRadius * c4, .1 * c4, PHI * audio1, uvr);
 
     let rectMask = sdRectangle1( center, vec2f(.7) + vec2f(.2) * c0, .004 + .020 * c3 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
 
@@ -257,7 +257,7 @@ fn main(
     variables.triRotation -= .000001 * step(0., variables.triRotation) * c2Visible;
     variables.triRotation = variables.triRotation % TAU; // cap rotation to avoid it getting stuck
     equiTriUV = rotateVector(equiTriUV, variables.triRotation + TAUQUARTER);
-    let poliMask = sdfngon(vec2f(), numSides, .5 + (c7 * .5), .01, equiTriUV) * c2Visible;
+    let poliMask = sdfngon(vec2f(), numSides, .5 + (c2 * .5), .01, equiTriUV) * c2Visible;
 
     let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
 
