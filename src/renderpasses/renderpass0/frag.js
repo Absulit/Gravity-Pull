@@ -159,8 +159,8 @@ fn main(
 
     // params.audioLength 1024
 
-    let audioX = audio.data[ u32(uvr.x * audioLength)] / MAXBITS;
-    let audioX2 = audio.data[ u32((ratio.x - uvr.x) * audioLength)] / MAXBITS;
+    let audioX = audio.data[ u32(uv.x * audioLength)] / MAXBITS;
+    let audioX2 = audio.data[ u32(audioLength - uv.x * audioLength)] / MAXBITS;
     let audio1 = audio.data[ u32(.9 * audioLength)] / MAXBITS;
 
     // CHANNELS
@@ -297,7 +297,7 @@ fn main(
             audioWave = vec4f(lineMask, lineMask*audioX, lineMask*uvrRotate.x, 1);
             audioWave2 = vec4f(lineMask2, lineMask2*audioX2, lineMask2*(1-uvrRotate.y), 1);
             progressBar = vec4f(1,audioX,uvrRotate.x,1) * progressBarMask;
-            poligon = vec4f(1,.4 + .1 * c4, step(.5, c2) * .4,1) * poliMask;
+            poligon = vec4f(1, .4 + .1 * c4, step(.5, c2) * .4, 1) * poliMask;
             stringColor = stringMask * mix(vec4(fusin(.132) , fusin(.586) ,0,1), vec4(1,.5, fusin(.7589633), 1), c0);
             stringColor2 = stringMask2 * mix( vec4( 1-vec3(fusin(.132) , fusin(.586), 0), 1), vec4(1-vec3(1,.5, fusin(.7589633)), 1), c0);
         }
