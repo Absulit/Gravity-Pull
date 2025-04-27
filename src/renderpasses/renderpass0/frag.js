@@ -120,6 +120,12 @@ fn sdRectangle2(position0:vec2f, position1:vec2f, uv:vec2f) -> f32 {
     return length(max(d, vec2f())) + min(max(d.x, d.y), 0.0);
 }
 
+const MATRIX0 = vec3f(.129,.145,.039);
+const MATRIX1 = vec3f(.231,.274,.117);
+const MATRIX2 = vec3f(.2,.282,.152);
+const MATRIX3 = vec3f(.309,.4,.290) ;
+const MATRIX4 = vec4f(.572,.717,.549, 1);
+
 
 const TAU = PI * 2; // TODO: fix on main library
 const TAUQUARTER = TAU * .25;
@@ -232,19 +238,23 @@ fn main(
     let textUVR = uvr / textScale;
     let spaceRatio = .0017 * ratio.x;
     for (var index = 0; index < NUMCHARS; index++) {
+        let indexF32 = f32(index);
         let charIndex = u32(chars[index]);
-        let charPosition = charSizeF32 * vec2(f32(index), 0);
-        let space = spaceRatio * vec2(f32(index), 0);
-        stringMask += sprite(font, textImageSampler, space + fontPosition + charPosition, textUVR, charIndex - charOffset, charSize).x;
-        stringMask2 += sprite(font, textImageSampler, space + fontPosition + charPosition, textUVR + .0005, charIndex - charOffset, charSize).x;
+        let charPosition = charSizeF32 * vec2(indexF32, 0);
+        let space = spaceRatio * vec2(indexF32, 0);
+        let sfPcP = space + fontPosition + charPosition;
+        let cIcO = charIndex - charOffset;
+        stringMask += sprite(font, textImageSampler, sfPcP, textUVR, cIcO, charSize).x;
+        stringMask2 += sprite(font, textImageSampler, sfPcP, textUVR + .0005, cIcO, charSize).x;
     }
 
     var messageStringMask = 0.;
     let messagePosition = vec2(.15, .19) * ratio;
     for (var index = 0; index < 21; index++) {
+        let indexF32 = f32(index);
         let charIndex = u32(message[index]);
-        let charPosition = charSizeF32 * vec2(f32(index), sin(params.time + f32(index) * .1));
-        let space = spaceRatio * vec2(f32(index), 0);
+        let charPosition = charSizeF32 * vec2(indexF32, sin(params.time + indexF32 * .1));
+        let space = spaceRatio * vec2(indexF32, 0);
         messageStringMask += sprite(font, textImageSampler, space + messagePosition + charPosition, textUVR, charIndex - charOffset, charSize).x;
     }
 
@@ -257,7 +267,7 @@ fn main(
     variables.triRotation -= .000001 * step(0., variables.triRotation) * c2Visible;
     variables.triRotation = variables.triRotation % TAU; // cap rotation to avoid it getting stuck
     equiTriUV = rotateVector(equiTriUV, variables.triRotation + TAUQUARTER);
-    let poliMask = sdfngon(vec2f(), numSides, .5 + (c2 * .5), .01, equiTriUV) * c2Visible;
+    let poliMask = sdfngon(vec2f(), numSides, .5 + (c2 * .25), .01, equiTriUV) * c2Visible;
 
     let progressBarMask = sdfLine2(vec2(), vec2(params.progress,0) * ratio, .005, uvr);
 
@@ -287,11 +297,11 @@ fn main(
             stringColor2 = stringMask2 * mix( vec4( 1-vec3(fusin(.132) , fusin(.586), 0), 1), vec4(1-vec3(1,.5, fusin(.7589633)), 1), c0);
         }
         case 1 { // matrix
-            audioWave = vec4f( vec3f(.129,.145,.039) * lineMask, 1);
-            audioWave2 = vec4f( vec3f(.231,.274,.117) * lineMask2, 1);
-            progressBar = vec4f( vec3f(.2,.282,.152) * progressBarMask, 1);
-            poligon = vec4f( vec3f(.309,.4,.290) * poliMask, 1);
-            stringColor = vec4f( .572,.717,.549, 1) * stringMask;
+            audioWave = vec4f(MATRIX0 * lineMask, 1);
+            audioWave2 = vec4f(MATRIX1 * lineMask2, 1);
+            progressBar = vec4f(MATRIX2 * progressBarMask, 1);
+            poligon = vec4f(MATRIX3 * poliMask, 1);
+            stringColor = MATRIX4 * stringMask;
             stringColor2 = stringMask2 * GREEN;
         }
         case 2 { // artwork
