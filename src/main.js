@@ -328,7 +328,7 @@ points.setUniform('rand', 0);
 points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
 // points.setUniform('somecolor', colors.color2, 'vec3f');
-points.setStorageMap('chars', strToCodes('Gravity Pulse'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
+points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('message', strToCodes('Select a song to Play'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
 points.setStorage('variables', 'Variables');
