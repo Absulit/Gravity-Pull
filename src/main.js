@@ -321,7 +321,7 @@ points.setSampler('textImageSampler', {
 });
 points.setTexture2d('feedbackTexture', true);
 
-audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', options.volume, loop, false);
+audio = points.setAudio('audio', '', options.volume, loop, false);
 
 points.setUniform('showMessage', 1);
 points.setUniform('rand', 0);
@@ -345,8 +345,6 @@ if (await points.init(renderPasses)) {
     el.classList.toggle('show');
 }
 
-
-
 points.canvas.addEventListener('click', _ => {
     if (pauseClickTimeout) {
         return;
@@ -356,7 +354,8 @@ points.canvas.addEventListener('click', _ => {
         pauseClickTimeout = null;
     }, 300);
 });
-document.addEventListener('dblclick', _ => {
+
+points.canvas.addEventListener('dblclick', _ => {
     clearTimeout(pauseClickTimeout);
     pauseClickTimeout = null;
     points.fullscreen = !points.fullscreen;
