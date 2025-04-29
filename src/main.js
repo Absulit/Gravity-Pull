@@ -14,6 +14,7 @@ const gui = new dat.GUI({ name: 'Points GUI' });
 const folderOptions = gui.addFolder('options');
 const folderControls = gui.addFolder('controls');
 const folderSongs = gui.addFolder('songs');
+const MAXCHARS = 30;
 
 let audio = null;
 let loop = false;
@@ -54,6 +55,7 @@ function playSong(song) {
 
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, options.volume, false, false);
+    points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
     points.setStorageMap('chars', strToCodes(title));
     let artworkLoaded = 0;
     song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
@@ -158,6 +160,7 @@ async function onCompleteTags(result) {
     }
 
     folderSongs.add(song, 'fn').name(song.name);
+    points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
     points.setStorageMap('chars', strToCodes(title));
 }
 
@@ -321,13 +324,14 @@ points.setSampler('textImageSampler', {
 });
 points.setTexture2d('feedbackTexture', true);
 
-audio = points.setAudio('audio', './../80s-pulse-synthwave-dude-212407.mp3', options.volume, loop, false);
+audio = points.setAudio('audio', '', options.volume, loop, false); // TODO returl null if empty or null is passed
 
 points.setUniform('showMessage', 1);
 points.setUniform('rand', 0);
 points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
 // points.setUniform('somecolor', colors.color2, 'vec3f');
+points.setUniform('numChars', 12);
 points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('message', strToCodes('Select a song to Play'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
@@ -345,8 +349,6 @@ if (await points.init(renderPasses)) {
     el.classList.toggle('show');
 }
 
-
-
 points.canvas.addEventListener('click', _ => {
     if (pauseClickTimeout) {
         return;
@@ -356,7 +358,8 @@ points.canvas.addEventListener('click', _ => {
         pauseClickTimeout = null;
     }, 300);
 });
-document.addEventListener('dblclick', _ => {
+
+points.canvas.addEventListener('dblclick', _ => {
     clearTimeout(pauseClickTimeout);
     pauseClickTimeout = null;
     points.fullscreen = !points.fullscreen;
