@@ -129,7 +129,6 @@ const MATRIX4 = vec4f(.572,.717,.549, 1);
 
 const TAU = PI * 2; // TODO: fix on main library
 const TAUQUARTER = TAU * .25;
-const NUMCHARS = 30;
 const MAXBYTES = 256;
 const CHLEN = 0.125;
 const DINTENSITY = .0041;//0.0151;
@@ -240,7 +239,8 @@ fn main(
     let textScale = 2.476 * ratio.y + c0;
     let textUVR = uvr / textScale;
     let spaceRatio = .0017 * ratio.x;
-    for (var index = 0; index < NUMCHARS; index++) {
+
+    for (var index = 0; index < i32(params.numChars); index++) {
         let indexF32 = f32(index);
         let charIndex = u32(chars[index]);
         let charPosition = charSizeF32 * vec2(indexF32, 0);
