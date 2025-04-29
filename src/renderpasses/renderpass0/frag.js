@@ -130,7 +130,7 @@ const MATRIX4 = vec4f(.572,.717,.549, 1);
 const TAU = PI * 2; // TODO: fix on main library
 const TAUQUARTER = TAU * .25;
 const NUMCHARS = 30;
-const MAXBITS = 256;
+const MAXBYTES = 256;
 const CHLEN = 0.125;
 const DINTENSITY = .0041;//0.0151;
 const B = vec3(); // black
@@ -159,19 +159,19 @@ fn main(
 
     // params.audioLength 1024
 
-    let audioX = audio.data[ u32(uv.x * audioLength)] / MAXBITS;
-    let audioX2 = audio.data[ u32(audioLength - uv.x * audioLength)] / MAXBITS;
-    let audio1 = audio.data[ u32(.9 * audioLength)] / MAXBITS;
+    let audioX = audio.data[ u32(uv.x * audioLength)] / MAXBYTES;
+    let audioX2 = audio.data[ u32(audioLength - uv.x * audioLength)] / MAXBYTES;
+    let audio1 = audio.data[ u32(.9 * audioLength)] / MAXBYTES;
 
     // CHANNELS
-    let c0 = audio.data[ 0 ] / MAXBITS;
-    let c1 = audio.data[ u32(CHLEN * 1 * audioLength)] / MAXBITS;
-    let c2 = audio.data[ u32(CHLEN * 2 * audioLength)] / MAXBITS;
-    let c3 = audio.data[ u32(CHLEN * 3 * audioLength)] / MAXBITS;
-    let c4 = audio.data[ u32(CHLEN * 4 * audioLength)] / MAXBITS;
-    let c5 = audio.data[ u32(CHLEN * 5 * audioLength)] / MAXBITS;
-    let c6 = audio.data[ u32(CHLEN * 6 * audioLength)] / MAXBITS;
-    let c7 = audio.data[ u32(CHLEN * 7 * audioLength)] / MAXBITS;
+    let c0 = audio.data[ 0 ] / MAXBYTES;
+    let c1 = audio.data[ u32(CHLEN * 1 * audioLength)] / MAXBYTES;
+    let c2 = audio.data[ u32(CHLEN * 2 * audioLength)] / MAXBYTES;
+    let c3 = audio.data[ u32(CHLEN * 3 * audioLength)] / MAXBYTES;
+    let c4 = audio.data[ u32(CHLEN * 4 * audioLength)] / MAXBYTES;
+    let c5 = audio.data[ u32(CHLEN * 5 * audioLength)] / MAXBYTES;
+    let c6 = audio.data[ u32(CHLEN * 6 * audioLength)] / MAXBYTES;
+    let c7 = audio.data[ u32(CHLEN * 7 * audioLength)] / MAXBYTES;
 
 
     let s = sdfCircle(center, maxCircleRadius * c4, .1 * audioX, uvr);
