@@ -268,8 +268,8 @@ fn main(
     let numSides = minNumSides + floor(5 * c7);
     var equiTriUV = uvr_minus_center / .156 * minNumSides / numSides; // .31
     let c2Visible = step(.001, c2); // to revert value only if c2 (poligon) is visible
-    variables.triRotation += TRIROTATION * c7 * c6 + c5 * TRIROTATION; // rotate gradually
-    variables.triRotation -= .000001 * step(0., variables.triRotation) * c2Visible;
+    variables.triRotation += c3 * TAU * TRIROTATION * step(.38, c3); // rotate gradually
+    variables.triRotation -= .000001 * TAU * step(0., variables.triRotation) * c2Visible;
     variables.triRotation = variables.triRotation % TAU; // cap rotation to avoid it getting stuck
     equiTriUV = rotateVector(equiTriUV, variables.triRotation + TAUQUARTER);
     let poliMask = sdfngon(vec2f(), numSides, .5 + (c2 * .25), .01, equiTriUV) * c2Visible;
