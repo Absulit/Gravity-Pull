@@ -1,5 +1,5 @@
 import { fnusin, fusin } from 'animation';
-import { GREEN, layer, RED, WHITE } from 'color';
+import { GREEN, layer, RED, RGBAFromHSV, WHITE } from 'color';
 import { sprite, texturePosition } from 'image';
 import { PHI, PI, rotateVector } from 'math';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'sdf';
@@ -23,6 +23,7 @@ ${fusin}
 ${WHITE}
 ${RED}
 ${GREEN}
+${RGBAFromHSV}
 
 fn pixelateUV(numColumns:f32, numRows:f32, uv:vec2f) -> vec2f {
     let dx = 1 / numColumns;
@@ -324,6 +325,14 @@ fn main(
             progressBar = vec4f( B * (1-progressBarMask), progressBarMask);
             poligon = vec4f( B  * (1-poliMask), poliMask);
             stringColor = vec4f(vec3f(1-stringMask), stringMask);
+            stringColor2 = stringMask2 * WHITE;
+        }
+        case 4 { // rainbow
+            audioWave = RGBAFromHSV(lineMask * c0, lineMask * c1, lineMask * c2);
+            audioWave2 = RGBAFromHSV(lineMask2 * c3, lineMask2 * c4, lineMask2 * c4);
+            progressBar = RGBAFromHSV(progressBarMask * c4, progressBarMask * c3, progressBarMask * c1);
+            poligon = RGBAFromHSV(poliMask * uvrRotate.x, poliMask * uvrRotate.y, poliMask);
+            stringColor = stringMask * RGBAFromHSV(stringMask * c5, stringMask * c0, stringMask * c7);
             stringColor2 = stringMask2 * WHITE;
         }
     }
