@@ -1,5 +1,5 @@
 import { fnusin, fusin } from 'animation';
-import { GREEN, layer, RED, WHITE } from 'color';
+import { GREEN, layer, RED, RGBAFromHSV, WHITE } from 'color';
 import { sprite, texturePosition } from 'image';
 import { PHI, PI, rotateVector } from 'math';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'sdf';
@@ -23,6 +23,7 @@ ${fusin}
 ${WHITE}
 ${RED}
 ${GREEN}
+${RGBAFromHSV}
 
 fn pixelateUV(numColumns:f32, numRows:f32, uv:vec2f) -> vec2f {
     let dx = 1 / numColumns;
@@ -268,8 +269,8 @@ fn main(
     let numSides = minNumSides + floor(5 * c7);
     var equiTriUV = uvr_minus_center / .156 * minNumSides / numSides; // .31
     let c2Visible = step(.001, c2); // to revert value only if c2 (poligon) is visible
-    variables.triRotation += TRIROTATION * c7 * c6 + c5 * TRIROTATION; // rotate gradually
-    variables.triRotation -= .000001 * step(0., variables.triRotation) * c2Visible;
+    variables.triRotation += c3 * TAU * TRIROTATION * step(.38, c3); // rotate gradually
+    variables.triRotation -= .000001 * TAU * step(0., variables.triRotation) * c2Visible;
     variables.triRotation = variables.triRotation % TAU; // cap rotation to avoid it getting stuck
     equiTriUV = rotateVector(equiTriUV, variables.triRotation + TAUQUARTER);
     let poliMask = sdfngon(vec2f(), numSides, .5 + (c2 * .25), .01, equiTriUV) * c2Visible;
@@ -324,6 +325,14 @@ fn main(
             progressBar = vec4f( B * (1-progressBarMask), progressBarMask);
             poligon = vec4f( B  * (1-poliMask), poliMask);
             stringColor = vec4f(vec3f(1-stringMask), stringMask);
+            stringColor2 = stringMask2 * WHITE;
+        }
+        case 4 { // rainbow
+            audioWave = RGBAFromHSV(lineMask * c0, lineMask * c1, lineMask * c2);
+            audioWave2 = RGBAFromHSV(lineMask2 * c3, lineMask2 * c4, lineMask2 * c4);
+            progressBar = RGBAFromHSV(progressBarMask * c4, progressBarMask * c3, progressBarMask * c1);
+            poligon = RGBAFromHSV(poliMask * uvrRotate.x, poliMask * uvrRotate.y, poliMask);
+            stringColor = stringMask * RGBAFromHSV(stringMask * c5, stringMask * c0, stringMask * c7);
             stringColor2 = stringMask2 * WHITE;
         }
     }
