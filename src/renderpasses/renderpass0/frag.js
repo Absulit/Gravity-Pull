@@ -346,7 +346,9 @@ fn main(
     // let finalColor = layer(bg, audioWave);
     // let finalColor = vec4f(1,s,0,1);
 
-    return finalColor + (messageStringMask * WHITE * params.showMessage * .1);
+    let test = texturePosition(test, imageSampler, vec2(), uvr, false);
+
+    return finalColor + (messageStringMask * WHITE * params.showMessage * .1) + test;
     // return finalColor + (poliMask * WHITE * params.showMessage * .1);
     // return poliMask * WHITE;
 }

@@ -4,7 +4,7 @@ import frag0 from './renderpasses/renderpass0/frag.js';
 import vert from './renderpasses/renderpass0/vert.js';
 import * as dat from 'datgui';
 import { Dexie } from 'https://unpkg.com/dexie/dist/modern/dexie.mjs';
-import { countImageColors, readTags, strToCodes } from './utils.js';
+import { countImageColors, readTags, sprite, strToCodes, strToImage } from './utils.js';
 
 /**
  * @type {Points}
@@ -338,6 +338,25 @@ points.setStorageMap('message', strToCodes('Select a song to Play'), 'array<f32>
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
 points.setStorage('variables', 'Variables');
 await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
+
+async function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(img);
+        img.onerror = err => reject(err);
+    });
+}
+
+const atlas =  await loadImage('src/img/inconsolata_regular_8x22.png')
+    const size = { x: 8, y: 22 };
+    const img = strToImage('Select a song to Play', atlas, size);
+    console.log(img);
+    await points.setTextureImage('test', img);
+
+
+
+
 const renderPasses = [
     new RenderPass(vert, frag0, null),
 ];
