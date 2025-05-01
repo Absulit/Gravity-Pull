@@ -52,7 +52,7 @@ async function playSong(song) {
     points.setUniform('showMessage', 0);
     const audioUrl = URL.createObjectURL(file);
     const name = song?.name || file.name;
-    const title = song?.title || name;
+    const title = name;
 
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, options.volume, false, false);
@@ -133,7 +133,8 @@ async function onCompleteTags(result) {
     const { tag, song } = result;
     const { file } = song;
     const { title, album, picture } = tag.tags;
-    const name = `${title} - ${album}`
+    const albumExists = album?` - ${album}`: '';
+    const name = `${title}${albumExists}`
     let artworkImageUrl = null;
     let artworkColors = null;
 
@@ -151,7 +152,7 @@ async function onCompleteTags(result) {
     }
 
     song.name = name || file.name;
-    song.title = title || name;
+    song.title = name;
 
 
     if (!song.default) {
