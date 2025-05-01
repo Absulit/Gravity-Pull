@@ -238,30 +238,27 @@ fn main(
     var stringMask = 0.;
     var stringMask2 = 0.;
     let textScale = 2.476 * ratio.y + c0;
-    let textUVR = uvr / textScale;
+    var textUVR = uvr / textScale;
     let spaceRatio = .0017 * ratio.x;
 
-    for (var index = 0; index < i32(params.numChars); index++) {
-        let indexF32 = f32(index);
-        let charIndex = u32(chars[index]);
-        let charPosition = charSizeF32 * vec2(indexF32, 0);
-        let space = spaceRatio * vec2(indexF32, 0);
-        let sfPcP = space + fontPosition + charPosition;
-        let cIcO = charIndex - charOffset;
-        stringMask += sprite(font, textImageSampler, sfPcP, textUVR, cIcO, charSize).x;
-        stringMask2 += sprite(font, textImageSampler, sfPcP, textUVR + .0005, cIcO, charSize).x;
-    }
+    // for (var index = 0; index < i32(params.numChars); index++) {
+    //     let indexF32 = f32(index);
+    //     let charIndex = u32(chars[index]);
+    //     let charPosition = charSizeF32 * vec2(indexF32, 0);
+    //     let space = spaceRatio * vec2(indexF32, 0);
+    //     let sfPcP = space + fontPosition + charPosition;
+    //     let cIcO = charIndex - charOffset;
+    //     stringMask += sprite(font, textImageSampler, sfPcP, textUVR, cIcO, charSize).x;
+    //     stringMask2 += sprite(font, textImageSampler, sfPcP, textUVR + .0005, cIcO, charSize).x;
+    // }
+    stringMask = texturePosition(songName, textImageSampler, fontPosition, textUVR, false).r;
+    stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .0005, false).r;
 
     var messageStringMask = 0.;
     if(params.showMessage == 1.){
         let messagePosition = vec2(.15, .19) * ratio;
-        for (var index = 0; index < 21; index++) {
-            let indexF32 = f32(index);
-            let charIndex = u32(message[index]);
-            let charPosition = charSizeF32 * vec2(indexF32, sin(params.time + indexF32 * .1));
-            let space = spaceRatio * vec2(indexF32, 0);
-            messageStringMask += sprite(font, textImageSampler, space + messagePosition + charPosition, textUVR, charIndex - charOffset, charSize).x;
-        }
+        textUVR = vec2f(textUVR.x, textUVR.y + sin(params.time + textUVR.x * 10 ) * .01);
+        messageStringMask = texturePosition(messageString, textImageSampler, messagePosition, textUVR, false).r;
     }
 
 
@@ -346,9 +343,7 @@ fn main(
     // let finalColor = layer(bg, audioWave);
     // let finalColor = vec4f(1,s,0,1);
 
-    let test = texturePosition(test, imageSampler, vec2(), uvr, false);
-
-    return finalColor + (messageStringMask * WHITE * params.showMessage * .1) + test;
+    return finalColor + (messageStringMask * WHITE * params.showMessage * .1);
     // return finalColor + (poliMask * WHITE * params.showMessage * .1);
     // return poliMask * WHITE;
 }
