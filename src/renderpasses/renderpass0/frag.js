@@ -239,18 +239,7 @@ fn main(
     var stringMask2 = 0.;
     let textScale = 2.476 * ratio.y + c0;
     var textUVR = uvr / textScale;
-    let spaceRatio = .0017 * ratio.x;
 
-    // for (var index = 0; index < i32(params.numChars); index++) {
-    //     let indexF32 = f32(index);
-    //     let charIndex = u32(chars[index]);
-    //     let charPosition = charSizeF32 * vec2(indexF32, 0);
-    //     let space = spaceRatio * vec2(indexF32, 0);
-    //     let sfPcP = space + fontPosition + charPosition;
-    //     let cIcO = charIndex - charOffset;
-    //     stringMask += sprite(font, textImageSampler, sfPcP, textUVR, cIcO, charSize).x;
-    //     stringMask2 += sprite(font, textImageSampler, sfPcP, textUVR + .0005, cIcO, charSize).x;
-    // }
     stringMask = texturePosition(songName, textImageSampler, fontPosition, textUVR, false).r;
     stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .0005, false).r;
 
