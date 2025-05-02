@@ -4,7 +4,7 @@ import frag0 from './renderpasses/renderpass0/frag.js';
 import vert from './renderpasses/renderpass0/vert.js';
 import * as dat from 'datgui';
 import { Dexie } from 'https://unpkg.com/dexie/dist/modern/dexie.mjs';
-import { countImageColors, readTags, strToCodes } from './utils.js';
+import { countImageColors, loadImage, readTags, sprite, strToCodes, strToImage } from './utils.js';
 
 /**
  * @type {Points}
@@ -47,17 +47,21 @@ function clickSong() {
     playSong(this);
 }
 
-function playSong(song) {
+async function playSong(song) {
     const { file } = song;
     points.setUniform('showMessage', 0);
     const audioUrl = URL.createObjectURL(file);
     const name = song?.name || file.name;
-    const title = song?.title || name;
+    const title = name;
 
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, options.volume, false, false);
     points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
-    points.setStorageMap('chars', strToCodes(title));
+    // points.setStorageMap('chars', strToCodes(title));
+
+    const songNameImg = strToImage(title, atlas, size);
+    await points.setTextureImage('songName', songNameImg);
+
     let artworkLoaded = 0;
     song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
     song?.artworkColors && (artworkLoaded = 1);
@@ -129,7 +133,8 @@ async function onCompleteTags(result) {
     const { tag, song } = result;
     const { file } = song;
     const { title, album, picture } = tag.tags;
-    const name = `${title} - ${album}`
+    const albumExists = album?` - ${album}`: '';
+    const name = `${title}${albumExists}`
     let artworkImageUrl = null;
     let artworkColors = null;
 
@@ -147,7 +152,7 @@ async function onCompleteTags(result) {
     }
 
     song.name = name || file.name;
-    song.title = title || name;
+    song.title = name;
 
 
     if (!song.default) {
@@ -162,7 +167,10 @@ async function onCompleteTags(result) {
 
     folderSongs.add(song, 'fn').name(song.name);
     points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
-    points.setStorageMap('chars', strToCodes(title));
+    // points.setStorageMap('chars', strToCodes(title));
+
+    const songNameImg = strToImage(title, atlas, size);
+    await points.setTextureImage('songName', songNameImg);
 }
 
 async function onErrorTags(response) {
@@ -333,11 +341,24 @@ points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
 // points.setUniform('somecolor', colors.color2, 'vec3f');
 points.setUniform('numChars', 12);
-points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
-points.setStorageMap('message', strToCodes('Select a song to Play'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
+// points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
 points.setStorage('variables', 'Variables');
 await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
+
+
+
+const size = { x: 8, y: 22 };
+const atlas =  await loadImage('src/img/inconsolata_regular_8x22.png');
+const messageStringImg = strToImage('Select a song to Play', atlas, size);
+await points.setTextureImage('messageString', messageStringImg);
+
+
+
+const songNameImg = strToImage('Gravity Pull', atlas, size);
+await points.setTextureImage('songName', songNameImg);
+
+
 const renderPasses = [
     new RenderPass(vert, frag0, null),
 ];
