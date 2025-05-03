@@ -221,7 +221,8 @@ fn main(
     // let uvrRotate = mix(uvrRotateMix0, uvrRotateMix1, step(.2, c7));
 
     let feedbackUV = ((uvrRotate + center) / fadeRotate) - center;
-    var feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, false);
+    let verticalCorrection = mix(ratio.x,1, step(1, ratio.x));
+    var feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV / verticalCorrection, false);
     feedbackColor = mix(feedbackColor, vec4f(), FEEDBACKFADEN);
     feedbackColor = feedbackColor * step(.01, feedbackColor.a);
 
