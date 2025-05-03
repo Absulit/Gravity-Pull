@@ -310,7 +310,7 @@ Object.keys(options).forEach(key => {
     if (key == 'volume') {
         volumeSlider = folderOptions.add(options, key, 0, 1, .0001).name(key);
     } else {
-        //folderOptions.add(options, key, -1, 1, .0001).name(key)
+        // folderOptions.add(options, key, -1, 1, .0001).name(key)
     }
 })
 

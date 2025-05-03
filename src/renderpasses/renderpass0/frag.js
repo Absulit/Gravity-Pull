@@ -178,7 +178,11 @@ fn main(
     let t = sdfCircle(center, audio1, audio1, uvr);
     let sq = sdfSquare(center, maxCircleRadius * c4, .1 * c4, PHI * audio1, uvr);
 
-    let rectMask = sdRectangle1( center, vec2f(.7) + vec2f(.2) * c0, .004 + .020 * c3 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
+    let isPortrait = step(ratio.x, ratio.y);
+    let ratioWidth =  mix(ratio.y, ratio.x, isPortrait);
+    let rectMaskBaseWidth = vec2f(.7) + vec2f(.2) * c0;
+    let rectMaskWidth = mix(rectMaskBaseWidth, rectMaskBaseWidth * .7, isPortrait);
+    let rectMask = sdRectangle1( center, rectMaskWidth, .004 + .020 * c3 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
 
     // var tsq = t;
     // if(params.rand > .5){
@@ -221,7 +225,7 @@ fn main(
     // let uvrRotate = mix(uvrRotateMix0, uvrRotateMix1, step(.2, c7));
 
     let feedbackUV = ((uvrRotate + center) / fadeRotate) - center;
-    var feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV, false);
+    var feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV / ratioWidth, false);
     feedbackColor = mix(feedbackColor, vec4f(), FEEDBACKFADEN);
     feedbackColor = feedbackColor * step(.01, feedbackColor.a);
 
@@ -237,17 +241,23 @@ fn main(
 
     var stringMask = 0.;
     var stringMask2 = 0.;
-    let textScale = 2.476 * ratio.y + c0;
-    var textUVR = uvr / textScale;
+    let textScale = 2.476 + c0;
+    let textUVR = uvr / textScale / ratioWidth;
 
     stringMask = texturePosition(songName, textImageSampler, fontPosition, textUVR, false).r;
-    stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .0005, false).r;
+    stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .001 / ratioWidth, false).r;
+
 
     var messageStringMask = 0.;
     if(params.showMessage == 1.){
-        let messagePosition = vec2(.15, .19) * ratio;
-        textUVR = vec2f(textUVR.x, textUVR.y + sin(params.time + textUVR.x * 10 ) * .01);
-        messageStringMask = texturePosition(messageString, textImageSampler, messagePosition, textUVR, false).r;
+        let messageScale = mix(textScale, ratioWidth, isPortrait);
+        let dims:vec2u = textureDimensions(messageString, 0);
+        let dimsF32 = vec2f(dims) * messageScale;
+        let dimWidth = dimsF32.x / params.screen.x;
+
+        var messageUVR = ( (uvr - center) + vec2f(dimWidth * .5, 0)) / messageScale;
+        messageUVR = vec2f(messageUVR.x, messageUVR.y + sin(params.time + messageUVR.x * 10 ) * .01);
+        messageStringMask = texturePosition(messageString, textImageSampler, vec2f(), messageUVR, false).r;
     }
 
 
