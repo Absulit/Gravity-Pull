@@ -180,7 +180,9 @@ fn main(
 
     let isPortrait = step(ratio.x, ratio.y);
     let ratioWidth =  mix(ratio.y, ratio.x, isPortrait);
-    let rectMask = sdRectangle1( center, (vec2f(.7) + vec2f(.2) * c0) * ratioWidth, .004 + .020 * c3 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
+    let rectMaskBaseWidth = vec2f(.7) + vec2f(.2) * c0;
+    let rectMaskWidth = mix(rectMaskBaseWidth, rectMaskBaseWidth * .7, isPortrait);
+    let rectMask = sdRectangle1( center, rectMaskWidth, .004 + .020 * c3 /*.0014*/ /*.1 * c1*/, uvr) * step(.001, c0);
 
     // var tsq = t;
     // if(params.rand > .5){
