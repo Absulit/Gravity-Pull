@@ -243,7 +243,7 @@ fn main(
     let textUVR = uvr / textScale / ratioWidth;
 
     stringMask = texturePosition(songName, textImageSampler, fontPosition, textUVR, false).r;
-    stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .0005, false).r;
+    stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .001 / ratioWidth, false).r;
 
 
     var messageStringMask = 0.;
