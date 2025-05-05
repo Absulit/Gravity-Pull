@@ -1,7 +1,7 @@
 import { fnusin, fusin } from 'animation';
 import { GREEN, layer, RED, RGBAFromHSV, WHITE } from 'color';
 import { sprite, texturePosition } from 'image';
-import { PHI, PI, rotateVector } from 'math';
+import { PHI, PI, rotateVector, TAU } from 'math';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'sdf';
 import { structs } from './structs.js';
 
@@ -17,6 +17,7 @@ ${sdfSquare}
 ${rotateVector}
 ${sprite}
 ${PHI}
+${TAU}
 ${PI}
 ${layer}
 ${fusin}
@@ -127,8 +128,6 @@ const MATRIX2 = vec3f(.2,.282,.152);
 const MATRIX3 = vec3f(.309,.4,.290) ;
 const MATRIX4 = vec4f(.572,.717,.549, 1);
 
-
-const TAU = PI * 2; // TODO: fix on main library
 const TAUQUARTER = TAU * .25;
 const MAXBYTES = 256;
 const CHLEN = 0.125;
