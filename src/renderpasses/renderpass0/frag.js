@@ -71,21 +71,9 @@ fn sdfEquiTriangle2( position:vec2f, radius:f32, feather: f32, uv:vec2f ) -> f32
     return st;
 }
 
-
-// fn opOnion( p: vec2f, r:f32 ) -> f32 {
-//   return abs(sdfEquiTriangle(p,r)) - r;
-// }
-
 fn sdfRectangle( position0:vec2f, position1:vec2f, uv:vec2f ) -> f32 {
-    var r = 0.;
-    // if(uv.x > position0.x && uv.x < position1.x && uv.y > position0.y && uv.y < position1.y){
-    //     r = 1.;
-    // }
-    // r = step(position0.x, uv.x) * step(uv.x, position1.x) * step(position0.y, uv.y) * step(uv.y, position1.y);
-    r = step(0.0, uv.x - position0.x) * step(0.0, position1.x - uv.x) * step(0.0, uv.y - position0.y) * step(0.0, position1.y - uv.y);
-    return r;
+    return step(0.0, uv.x - position0.x) * step(0.0, position1.x - uv.x) * step(0.0, uv.y - position0.y) * step(0.0, position1.y - uv.y);
 }
-
 
 fn sdRectangle1(position:vec2f, size:vec2f, feather:f32, uv:vec2f) -> f32 {
     let d = abs(uv - position) - size * 0.5;
