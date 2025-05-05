@@ -131,6 +131,7 @@ const charSize = vec2(8u,22u);
 const charOffset = 32u; // A is 33
 const maxCircleRadius = .9;
 const audioLength = 826.; // 800. 826. 550.
+const minNumSides = 3.;
 
 @fragment
 fn main(
@@ -226,29 +227,23 @@ fn main(
     let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
 
 
-    var stringMask = 0.;
-    var stringMask2 = 0.;
     let textScale = 2.476 + c0;
     let textUVR = uvr / textScale / ratioWidth;
-
-    stringMask = texturePosition(songName, textImageSampler, fontPosition, textUVR, false).r;
-    stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .001 / ratioWidth, false).r;
-
+    let stringMask = texturePosition(songName, textImageSampler, fontPosition, textUVR, false).r;
+    let stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .001 / ratioWidth, false).r;
 
     var messageStringMask = 0.;
     if(params.showMessage == 1.){
         let messageScale = mix(textScale, ratioWidth, isPortrait);
         let dims:vec2u = textureDimensions(messageString, 0);
         let dimsF32 = vec2f(dims) * messageScale;
-        let dimWidth = dimsF32.x / params.screen.x;
+        let dimWidth = dimsF32.x / params.screen.x * messageScale;
 
-        var messageUVR = ( (uvr - center) + vec2f(dimWidth * .5, 0)) / messageScale;
-        messageUVR = vec2f(messageUVR.x, messageUVR.y + sin(params.time + messageUVR.x * 10 ) * .01);
+        var messageUVR = ( (uvr - center) + vec2f(dimWidth * .5, 0));
+        messageUVR = vec2f(messageUVR.x, messageUVR.y + sin(params.time + messageUVR.x * 10 ) * .01) / messageScale;
         messageStringMask = texturePosition(messageString, textImageSampler, vec2f(), messageUVR, false).r;
     }
 
-
-    let minNumSides = 3.;
     let numSides = minNumSides + floor(5 * c7);
     var equiTriUV = uvr_minus_center / .156 * minNumSides / numSides; // .31
     let c2Visible = step(.001, c2); // to revert value only if c2 (poligon) is visible
