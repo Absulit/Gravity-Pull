@@ -268,6 +268,7 @@ fn main(
     var poligon = vec4f();
     var stringColor = vec4f();
     var stringColor2 = vec4f();
+    var messageStringColor = vec4f();
 
     var bg = vec4f();
 
@@ -279,6 +280,7 @@ fn main(
             poligon = vec4f(1, .4 + .1 * c4, step(.5, c2) * .4, 1) * poliMask;
             stringColor = stringMask * mix(vec4(fusin(.132) , fusin(.586) ,0,1), vec4(1,.5, fusin(.7589633), 1), c0);
             stringColor2 = stringMask2 * mix( vec4( 1-vec3(fusin(.132) , fusin(.586), 0), 1), vec4(1-vec3(1,.5, fusin(.7589633)), 1), c0);
+            messageStringColor = messageStringMask * WHITE;
         }
         case 1 { // matrix
             audioWave = vec4f(MATRIX0 * lineMask, 1);
@@ -287,6 +289,7 @@ fn main(
             poligon = vec4f(MATRIX3 * poliMask, 1);
             stringColor = MATRIX4 * stringMask;
             stringColor2 = stringMask2 * GREEN;
+            messageStringColor = messageStringMask * GREEN;
         }
         case 2 { // artwork
             audioWave = vec4f( mix(artworkColors[9].rgb, artworkColors[0].rgb, audioX) * lineMask, 1);
@@ -295,6 +298,7 @@ fn main(
             poligon = vec4f( mix(artworkColors[6].rgb, artworkColors[3].rgb, c4) * poliMask, 1);
             stringColor = mix(artworkColors[5], artworkColors[4], c0) * stringMask;
             stringColor2 = stringMask2 * WHITE;
+            messageStringColor = messageStringMask * WHITE;
         }
         case 3 { // white bg
             bg = DWHITE;
@@ -304,6 +308,7 @@ fn main(
             poligon = vec4f( B  * (1-poliMask), poliMask);
             stringColor = vec4f(vec3f(1-stringMask), stringMask);
             stringColor2 = stringMask2 * WHITE;
+            messageStringColor = vec4f(B-messageStringMask, messageStringMask);
         }
         case 4 { // rainbow
             audioWave = RGBAFromHSV(lineMask * c0, lineMask * c1, lineMask * c2);
@@ -312,6 +317,16 @@ fn main(
             poligon = RGBAFromHSV(poliMask * uvrRotate.x, poliMask * uvrRotate.y, poliMask);
             stringColor = stringMask * RGBAFromHSV(stringMask * c5, stringMask * c0, stringMask * c7);
             stringColor2 = stringMask2 * WHITE;
+            messageStringColor = messageStringMask * GREEN;
+        }
+        case 5 { // cycle
+            audioWave = RGBAFromHSV(lineMask * (params.time % 1), lineMask, lineMask);
+            audioWave2 = RGBAFromHSV(lineMask2 * (params.time % 1), lineMask2, lineMask2);
+            progressBar = RGBAFromHSV(progressBarMask * c4, progressBarMask * c3, progressBarMask * c1);
+            poligon = RGBAFromHSV(poliMask * c4, poliMask, poliMask);
+            stringColor = stringMask * RGBAFromHSV(stringMask * c0, stringMask, stringMask);
+            stringColor2 = stringMask2 * WHITE;
+            messageStringColor = messageStringMask * GREEN;
         }
     }
 
@@ -324,7 +339,7 @@ fn main(
     // let finalColor = layer(bg, audioWave);
     // let finalColor = vec4f(1,s,0,1);
 
-    return finalColor + (messageStringMask * WHITE * params.showMessage * .1);
+    return finalColor + (messageStringColor * params.showMessage * .1);
     // return finalColor + (poliMask * WHITE * params.showMessage * .1);
     // return poliMask * WHITE;
 }
