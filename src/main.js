@@ -37,6 +37,7 @@ const colorSchemes = {
     Artwork: 2,
     Negative: 3,
     Rainbow: 4,
+    Cycle: 5
 }
 folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => {
     points.setUniform('colorScheme', v)
