@@ -48,6 +48,23 @@ function clickSong() {
     playSong(this);
 }
 
+function assingMediaSession(song){
+    if ('mediaSession' in navigator) {
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.title,
+            artist: song.artist,
+            album: song.album,
+        });
+
+        if (song.artworkImageUrl) {
+            navigator.mediaSession.metadata.artwork = [
+                { src: song.artworkImageUrl, sizes: '1024x1024', type: 'image/jpeg' }
+            ]
+        }
+    }
+}
+
 async function playSong(song) {
     const { file } = song;
     points.setUniform('showMessage', 0);
@@ -68,6 +85,8 @@ async function playSong(song) {
     song?.artworkColors && (artworkLoaded = 1);
     points.setUniform('artworkLoaded', artworkLoaded);
     audio.id = song?.id;
+
+    assingMediaSession(song);
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('ended', async e => {
@@ -133,8 +152,10 @@ function loadFolder() {
 async function onCompleteTags(result) {
     const { tag, song } = result;
     const { file } = song;
-    const { title, album, picture } = tag.tags;
-    const albumExists = album?` - ${album}`: '';
+    const { title, album, artist, picture } = tag.tags;
+    console.log(tag.tags);
+
+    const albumExists = album ? ` - ${album}` : '';
     const name = `${title}${albumExists}`
     let artworkImageUrl = null;
     let artworkColors = null;
@@ -153,7 +174,11 @@ async function onCompleteTags(result) {
     }
 
     song.name = name || file.name;
-    song.title = name;
+    song.title = title;
+    song.album = album;
+    song.artist = artist;
+
+    assingMediaSession(song); // this is a duplicate call only on file load
 
 
     if (!song.default) {
@@ -161,8 +186,10 @@ async function onCompleteTags(result) {
             file,
             artworkImageUrl,
             artworkColors,
+            title,
+            album,
+            artist,
             name: song.name,
-            title: song.title
         });
     }
 
@@ -224,18 +251,24 @@ const songs = [
     {
         default: true,
         name: 'Pulse 🎵',
+        title: 'Pulse',
+        artist: 'nickpanek620',
         src: './music/80s-pulse-synthwave-dude-212407.mp3',
         fn: clickSong
     },
     {
         default: true,
         name: 'Robot Swarm 🎵',
+        title: 'Robot Swarm',
+        artist: 'nickpanek620',
         src: './music/synthwave-80s-robot-swarm-218092.mp3',
         fn: clickSong
     },
     {
         default: true,
         name: 'Fading Echoes 🎵',
+        title: 'Fading Echoes',
+        artist: 'Mezhdunami',
         src: './music/mezhdunami-fading-echoes-129291.mp3',
         fn: clickSong
     }
@@ -350,7 +383,7 @@ await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
 
 
 const size = { x: 8, y: 22 };
-const atlas =  await loadImage('src/img/inconsolata_regular_8x22.png');
+const atlas = await loadImage('src/img/inconsolata_regular_8x22.png');
 const messageStringImg = strToImage('Select a song to Play', atlas, size);
 await points.setTextureImage('messageString', messageStringImg);
 
@@ -455,3 +488,6 @@ async function loadSongFromURL() {
 }
 
 loadSongFromURL()
+
+
+
