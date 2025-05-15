@@ -19,6 +19,7 @@ const MAXCHARS = 30;
 let audio = null;
 let loop = false;
 let pauseClickTimeout = null;
+let currentSong = null;
 
 const options = {
     volume: 0.500,
@@ -48,11 +49,12 @@ function clickSong() {
     playSong(this);
 }
 
-function assingMediaSession(song){
+function assingMediaSession(song) {
     if ('mediaSession' in navigator) {
+        console.log(song);
 
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.title,
+            title: song.title || song.name,
             artist: song.artist,
             album: song.album,
         });
@@ -67,6 +69,7 @@ function assingMediaSession(song){
 
 async function playSong(song) {
     const { file } = song;
+    currentSong = song;
     points.setUniform('showMessage', 0);
     const audioUrl = URL.createObjectURL(file);
     const name = song?.name || file.name;
@@ -153,8 +156,6 @@ async function onCompleteTags(result) {
     const { tag, song } = result;
     const { file } = song;
     const { title, album, artist, picture } = tag.tags;
-    console.log(tag.tags);
-
     const albumExists = album ? ` - ${album}` : '';
     const name = `${title}${albumExists}`
     let artworkImageUrl = null;
@@ -328,6 +329,7 @@ songsFromDB.forEach(item => {
         artworkImageUrl: item.artworkImageUrl,
         name: item.name,
         title: item.title,
+        artist: item.artist,
         src: audioUrl,
         fn: clickSong
     }
@@ -491,3 +493,46 @@ loadSongFromURL()
 
 
 
+// ----------------------------------
+
+
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => {
+        console.log('---- play', audio);
+        audio?.play()
+    });
+
+    navigator.mediaSession.setActionHandler('pause', () => {
+        console.log('---- pause');
+        audio?.pause()
+    });
+
+    navigator.mediaSession.setActionHandler('stop', () => {
+        console.log('---- stop', currentSong);
+        audio.pause()
+        audio.currentTime = 0; // Reset playback()
+
+        assingMediaSession(currentSong);
+
+        navigator.mediaSession.setActionHandler('play', () => {
+            console.log('---- play', audio);
+            audio?.play()
+        });
+
+    });
+
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+        console.log('---- previoustrack');
+
+        const id = +currentSong.id;
+        const nextSong = songs[id - 1] || songs[songs.length - 1];
+        playSong(nextSong);
+    });
+
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+        console.log('---- nexttrack');
+        const id = +currentSong.id;
+        const nextSong = songs[id + 1] || songs[0];
+        playSong(nextSong);
+    });
+}
