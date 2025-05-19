@@ -495,42 +495,24 @@ loadSongFromURL()
 
 // ----------------------------------
 
-
 if ('mediaSession' in navigator) {
-    navigator.mediaSession.setActionHandler('play', () => {
-        console.log('---- play', audio);
-        audio?.play()
-    });
-
-    navigator.mediaSession.setActionHandler('pause', () => {
-        console.log('---- pause');
-        audio?.pause()
-    });
+    navigator.mediaSession.setActionHandler('play', _ => audio?.play());
+    navigator.mediaSession.setActionHandler('pause', _ => audio?.pause());
 
     navigator.mediaSession.setActionHandler('stop', () => {
-        console.log('---- stop', currentSong);
         audio.pause()
         audio.currentTime = 0; // Reset playback()
-
         assingMediaSession(currentSong);
-
-        navigator.mediaSession.setActionHandler('play', () => {
-            console.log('---- play', audio);
-            audio?.play()
-        });
-
+        navigator.mediaSession.setActionHandler('play', _ => audio?.play());
     });
 
-    navigator.mediaSession.setActionHandler('previoustrack', () => {
-        console.log('---- previoustrack');
-
+    navigator.mediaSession.setActionHandler('previoustrack', _ => {
         const id = +currentSong.id;
         const nextSong = songs[id - 1] || songs[songs.length - 1];
         playSong(nextSong);
     });
 
-    navigator.mediaSession.setActionHandler('nexttrack', () => {
-        console.log('---- nexttrack');
+    navigator.mediaSession.setActionHandler('nexttrack', _ => {
         const id = +currentSong.id;
         const nextSong = songs[id + 1] || songs[0];
         playSong(nextSong);
