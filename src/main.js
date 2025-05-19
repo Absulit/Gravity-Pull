@@ -19,6 +19,7 @@ const MAXCHARS = 30;
 let audio = null;
 let loop = false;
 let pauseClickTimeout = null;
+let currentSong = null;
 
 const options = {
     volume: 0.500,
@@ -48,8 +49,27 @@ function clickSong() {
     playSong(this);
 }
 
+function assingMediaSession(song) {
+    if ('mediaSession' in navigator) {
+        console.log(song);
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.title || song.name,
+            artist: song.artist,
+            album: song.album,
+        });
+
+        if (song.artworkImageUrl) {
+            navigator.mediaSession.metadata.artwork = [
+                { src: song.artworkImageUrl, sizes: '1024x1024', type: 'image/jpeg' }
+            ]
+        }
+    }
+}
+
 async function playSong(song) {
     const { file } = song;
+    currentSong = song;
     points.setUniform('showMessage', 0);
     const audioUrl = URL.createObjectURL(file);
     const name = song?.name || file.name;
@@ -68,6 +88,8 @@ async function playSong(song) {
     song?.artworkColors && (artworkLoaded = 1);
     points.setUniform('artworkLoaded', artworkLoaded);
     audio.id = song?.id;
+
+    assingMediaSession(song);
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('ended', async e => {
@@ -133,8 +155,8 @@ function loadFolder() {
 async function onCompleteTags(result) {
     const { tag, song } = result;
     const { file } = song;
-    const { title, album, picture } = tag.tags;
-    const albumExists = album?` - ${album}`: '';
+    const { title, album, artist, picture } = tag.tags;
+    const albumExists = album ? ` - ${album}` : '';
     const name = `${title}${albumExists}`
     let artworkImageUrl = null;
     let artworkColors = null;
@@ -153,7 +175,11 @@ async function onCompleteTags(result) {
     }
 
     song.name = name || file.name;
-    song.title = name;
+    song.title = title;
+    song.album = album;
+    song.artist = artist;
+
+    assingMediaSession(song); // this is a duplicate call only on file load
 
 
     if (!song.default) {
@@ -161,8 +187,10 @@ async function onCompleteTags(result) {
             file,
             artworkImageUrl,
             artworkColors,
+            title,
+            album,
+            artist,
             name: song.name,
-            title: song.title
         });
     }
 
@@ -224,18 +252,24 @@ const songs = [
     {
         default: true,
         name: 'Pulse 🎵',
+        title: 'Pulse',
+        artist: 'nickpanek620',
         src: './music/80s-pulse-synthwave-dude-212407.mp3',
         fn: clickSong
     },
     {
         default: true,
         name: 'Robot Swarm 🎵',
+        title: 'Robot Swarm',
+        artist: 'nickpanek620',
         src: './music/synthwave-80s-robot-swarm-218092.mp3',
         fn: clickSong
     },
     {
         default: true,
         name: 'Fading Echoes 🎵',
+        title: 'Fading Echoes',
+        artist: 'Mezhdunami',
         src: './music/mezhdunami-fading-echoes-129291.mp3',
         fn: clickSong
     }
@@ -295,6 +329,7 @@ songsFromDB.forEach(item => {
         artworkImageUrl: item.artworkImageUrl,
         name: item.name,
         title: item.title,
+        artist: item.artist,
         src: audioUrl,
         fn: clickSong
     }
@@ -350,7 +385,7 @@ await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
 
 
 const size = { x: 8, y: 22 };
-const atlas =  await loadImage('src/img/inconsolata_regular_8x22.png');
+const atlas = await loadImage('src/img/inconsolata_regular_8x22.png');
 const messageStringImg = strToImage('Select a song to Play', atlas, size);
 await points.setTextureImage('messageString', messageStringImg);
 
@@ -455,3 +490,31 @@ async function loadSongFromURL() {
 }
 
 loadSongFromURL()
+
+
+
+// ----------------------------------
+
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', _ => audio?.play());
+    navigator.mediaSession.setActionHandler('pause', _ => audio?.pause());
+
+    navigator.mediaSession.setActionHandler('stop', () => {
+        audio.pause()
+        audio.currentTime = 0; // Reset playback()
+        assingMediaSession(currentSong);
+        navigator.mediaSession.setActionHandler('play', _ => audio?.play());
+    });
+
+    navigator.mediaSession.setActionHandler('previoustrack', _ => {
+        const id = +currentSong.id;
+        const nextSong = songs[id - 1] || songs[songs.length - 1];
+        playSong(nextSong);
+    });
+
+    navigator.mediaSession.setActionHandler('nexttrack', _ => {
+        const id = +currentSong.id;
+        const nextSong = songs[id + 1] || songs[0];
+        playSong(nextSong);
+    });
+}
