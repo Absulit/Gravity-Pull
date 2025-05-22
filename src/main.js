@@ -70,15 +70,16 @@ function assingMediaSession(song) {
 async function playSong(song) {
     const { file } = song;
     currentSong = song;
+    saveOption('currentSongId', currentSong.id);
     points.setUniform('showMessage', 0);
-    const audioUrl = URL.createObjectURL(file);
     const name = song?.name || file.name;
     const title = name;
 
+    const audioUrl = URL.createObjectURL(song.file);
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, options.volume, false, false);
+
     points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
-    // points.setStorageMap('chars', strToCodes(title));
 
     const songNameImg = strToImage(title, atlas, size);
     await points.setTextureImage('songName', songNameImg);
@@ -305,6 +306,10 @@ if (volume) {
 const scheme = await getOption('scheme');
 console.log(scheme);
 
+const currentSongId = await getOption('currentSongId')
+console.log(currentSongId);
+
+
 if (scheme) {
     selectedScheme['Color Scheme'] = scheme;
     points.setUniform('colorScheme', scheme)
@@ -406,8 +411,18 @@ points.canvas.addEventListener('click', _ => {
     if (pauseClickTimeout) {
         return;
     }
-    pauseClickTimeout = setTimeout(() => {
-        audio?.paused ? audio?.play() : audio?.pause();
+    pauseClickTimeout = setTimeout(_ => {
+        // if the app starts first time it has no audio,
+        // second time it has the current song saved,
+        // no src means no song
+        // if currentSongId then a value was saved and can be loaded
+        const src = audio.getAttribute('src');
+        if (!src && currentSongId) {
+            currentSong = songs[currentSongId];
+            playSong(currentSong)
+        } else {
+            audio?.paused ? audio?.play() : audio?.pause();
+        }
         pauseClickTimeout = null;
     }, 300);
 });
@@ -490,7 +505,7 @@ loadSongFromURL()
 
 // ----------------------------------
 
-function loadNextSong(){
+function loadNextSong() {
     const id = +currentSong.id;
     const nextSong = songs[id + 1] || songs[0];
     playSong(nextSong);
