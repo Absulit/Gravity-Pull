@@ -92,12 +92,7 @@ async function playSong(song) {
     assingMediaSession(song);
 
     audio.addEventListener('timeupdate', onTimeUpdate);
-    audio.addEventListener('ended', async e => {
-        const id = +e.target.id;
-        const nextSong = songs[id + 1] || songs[0];
-        playSong(nextSong);
-
-    });
+    audio.addEventListener('ended', loadNextSong);
     audio.play();
 }
 
@@ -493,9 +488,13 @@ async function loadSongFromURL() {
 
 loadSongFromURL()
 
-
-
 // ----------------------------------
+
+function loadNextSong(){
+    const id = +currentSong.id;
+    const nextSong = songs[id + 1] || songs[0];
+    playSong(nextSong);
+}
 
 if ('mediaSession' in navigator) {
     navigator.mediaSession.setActionHandler('play', _ => audio?.play());
@@ -514,9 +513,5 @@ if ('mediaSession' in navigator) {
         playSong(nextSong);
     });
 
-    navigator.mediaSession.setActionHandler('nexttrack', _ => {
-        const id = +currentSong.id;
-        const nextSong = songs[id + 1] || songs[0];
-        playSong(nextSong);
-    });
+    navigator.mediaSession.setActionHandler('nexttrack', loadNextSong);
 }
