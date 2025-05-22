@@ -445,6 +445,7 @@ let mouseStopTimeout;
 document.addEventListener('mousemove', e => {
     if (!isMouseMoving) {
         isMouseMoving = true;
+        gui.open()
         document.body.style.cursor = 'auto';
     }
 
@@ -454,6 +455,7 @@ document.addEventListener('mousemove', e => {
     // Set a timeout to detect when the mouse stops
     mouseStopTimeout = setTimeout(_ => {
         isMouseMoving = false;
+        gui.close()
         document.body.style.cursor = 'none';
     }, 1000);
 });
