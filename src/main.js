@@ -70,15 +70,16 @@ function assingMediaSession(song) {
 async function playSong(song) {
     const { file } = song;
     currentSong = song;
+    saveOption('currentSongId', currentSong.id);
     points.setUniform('showMessage', 0);
-    const audioUrl = URL.createObjectURL(file);
     const name = song?.name || file.name;
     const title = name;
 
+    const audioUrl = URL.createObjectURL(song.file);
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, options.volume, false, false);
+
     points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
-    // points.setStorageMap('chars', strToCodes(title));
 
     const songNameImg = strToImage(title, atlas, size);
     await points.setTextureImage('songName', songNameImg);
@@ -92,12 +93,7 @@ async function playSong(song) {
     assingMediaSession(song);
 
     audio.addEventListener('timeupdate', onTimeUpdate);
-    audio.addEventListener('ended', async e => {
-        const id = +e.target.id;
-        const nextSong = songs[id + 1] || songs[0];
-        playSong(nextSong);
-
-    });
+    audio.addEventListener('ended', loadNextSong);
     audio.play();
 }
 
@@ -310,6 +306,10 @@ if (volume) {
 const scheme = await getOption('scheme');
 console.log(scheme);
 
+const currentSongId = await getOption('currentSongId')
+console.log(currentSongId);
+
+
 if (scheme) {
     selectedScheme['Color Scheme'] = scheme;
     points.setUniform('colorScheme', scheme)
@@ -411,8 +411,18 @@ points.canvas.addEventListener('click', _ => {
     if (pauseClickTimeout) {
         return;
     }
-    pauseClickTimeout = setTimeout(() => {
-        audio?.paused ? audio?.play() : audio?.pause();
+    pauseClickTimeout = setTimeout(_ => {
+        // if the app starts first time it has no audio,
+        // second time it has the current song saved,
+        // no src means no song
+        // if currentSongId then a value was saved and can be loaded
+        const src = audio.getAttribute('src');
+        if (!src && currentSongId) {
+            currentSong = songs[currentSongId];
+            playSong(currentSong)
+        } else {
+            audio?.paused ? audio?.play() : audio?.pause();
+        }
         pauseClickTimeout = null;
     }, 300);
 });
@@ -442,21 +452,48 @@ function update() {
 let isMouseMoving = false;
 let mouseStopTimeout;
 
+const guiElement = document.querySelector('.dg.main');
+let isMouseOnDatGui = false;
+
+function onMouseStopTimeout() {
+    clearTimeout(mouseStopTimeout);
+    mouseStopTimeout = null;
+    isMouseMoving = false;
+    gui.close()
+    document.body.style.cursor = 'none';
+}
+
+guiElement.addEventListener('mouseenter', () => {
+    isMouseOnDatGui = true;
+    clearTimeout(mouseStopTimeout);
+    mouseStopTimeout = null;
+});
+
+guiElement.addEventListener('mouseleave', () => {
+    isMouseOnDatGui = false;
+    if (!mouseStopTimeout) {
+        mouseStopTimeout = setTimeout(onMouseStopTimeout, 1000);
+    }
+});
+
 document.addEventListener('mousemove', e => {
     if (!isMouseMoving) {
         isMouseMoving = true;
+        gui.open()
         document.body.style.cursor = 'auto';
     }
 
-    // Clear the timeout to reset the stop detection
     clearTimeout(mouseStopTimeout);
+    mouseStopTimeout = null;
 
-    // Set a timeout to detect when the mouse stops
-    mouseStopTimeout = setTimeout(_ => {
-        isMouseMoving = false;
-        document.body.style.cursor = 'none';
-    }, 1000);
+    if (isMouseOnDatGui) {
+        return;
+    }
+
+    mouseStopTimeout = setTimeout(onMouseStopTimeout, 1000);
 });
+
+
 
 /******************************/
 async function loadSongFromURL() {
@@ -491,9 +528,13 @@ async function loadSongFromURL() {
 
 loadSongFromURL()
 
-
-
 // ----------------------------------
+
+function loadNextSong() {
+    const id = +currentSong.id;
+    const nextSong = songs[id + 1] || songs[0];
+    playSong(nextSong);
+}
 
 if ('mediaSession' in navigator) {
     navigator.mediaSession.setActionHandler('play', _ => audio?.play());
@@ -512,9 +553,5 @@ if ('mediaSession' in navigator) {
         playSong(nextSong);
     });
 
-    navigator.mediaSession.setActionHandler('nexttrack', _ => {
-        const id = +currentSong.id;
-        const nextSong = songs[id + 1] || songs[0];
-        playSong(nextSong);
-    });
+    navigator.mediaSession.setActionHandler('nexttrack', loadNextSong);
 }
