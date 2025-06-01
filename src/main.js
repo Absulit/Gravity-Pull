@@ -452,6 +452,30 @@ function update() {
 let isMouseMoving = false;
 let mouseStopTimeout;
 
+const guiElement = document.querySelector('.dg.main');
+let isMouseOnDatGui = false;
+
+function onMouseStopTimeout() {
+    clearTimeout(mouseStopTimeout);
+    mouseStopTimeout = null;
+    isMouseMoving = false;
+    gui.close()
+    document.body.style.cursor = 'none';
+}
+
+guiElement.addEventListener('mouseenter', () => {
+    isMouseOnDatGui = true;
+    clearTimeout(mouseStopTimeout);
+    mouseStopTimeout = null;
+});
+
+guiElement.addEventListener('mouseleave', () => {
+    isMouseOnDatGui = false;
+    if (!mouseStopTimeout) {
+        mouseStopTimeout = setTimeout(onMouseStopTimeout, 1000);
+    }
+});
+
 document.addEventListener('mousemove', e => {
     if (!isMouseMoving) {
         isMouseMoving = true;
@@ -459,16 +483,17 @@ document.addEventListener('mousemove', e => {
         document.body.style.cursor = 'auto';
     }
 
-    // Clear the timeout to reset the stop detection
     clearTimeout(mouseStopTimeout);
+    mouseStopTimeout = null;
 
-    // Set a timeout to detect when the mouse stops
-    mouseStopTimeout = setTimeout(_ => {
-        isMouseMoving = false;
-        gui.close()
-        document.body.style.cursor = 'none';
-    }, 1000);
+    if (isMouseOnDatGui) {
+        return;
+    }
+
+    mouseStopTimeout = setTimeout(onMouseStopTimeout, 1000);
 });
+
+
 
 /******************************/
 async function loadSongFromURL() {
