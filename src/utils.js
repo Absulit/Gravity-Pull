@@ -1,7 +1,3 @@
-// export function strToCodes(str) {
-//     return Array.from(str).map(char => char.charCodeAt(0))
-// }
-
 export function readTags(song) {
     return new Promise((resolve, reject) => {
         jsmediatags.read(song.file, {
@@ -60,52 +56,3 @@ export async function countImageColors(src) {
 
     });
 }
-
-// /**
-//  *
-//  * @param {Image} atlas Image atlas to parse
-//  * @param {CanvasRenderingContext2D} ctx Canvas context
-//  * @param {Number} index index in the atlas, so 0 is the first char
-//  * @param {Object} size cell dimensions
-//  * @param {Number} finalIndex final positional index in the canvas
-//  */
-// export function sprite(atlas, ctx, index, size, finalIndex) {
-//     const { width } = atlas;
-//     const numColumns = width / size.x
-
-//     const x = index % numColumns;
-//     const y = Math.floor(index / numColumns);
-
-//     ctx.drawImage(
-//         atlas,
-//         x * size.x,
-//         y * size.y,
-//         size.x,
-//         size.y,
-
-//         size.x * finalIndex,
-//         0,
-
-//         size.x,
-//         size.y);
-// }
-
-// export function strToImage(str, atlasImg, size){
-//     const chars = strToCodes(str);
-//     const canvas = document.createElement('canvas');
-//     canvas.width = chars.length * size.x;
-//     canvas.height = size.y;
-//     const ctx = canvas.getContext('2d');
-
-//     chars.forEach((c, i) => sprite(atlasImg, ctx, c - 32, size, i));
-//     return canvas.toDataURL('image/png');
-// }
-
-// export async function loadImage(src) {
-//     return new Promise((resolve, reject) => {
-//         const img = new Image();
-//         img.src = src;
-//         img.onload = () => resolve(img);
-//         img.onerror = err => reject(err);
-//     });
-// }
