@@ -4,7 +4,7 @@ import frag0 from './renderpasses/renderpass0/frag.js';
 import vert from './renderpasses/renderpass0/vert.js';
 import * as dat from 'datgui';
 import { Dexie } from 'https://unpkg.com/dexie/dist/modern/dexie.mjs';
-import { countImageColors, loadImage, readTags, sprite, strToCodes, strToImage } from './utils.js';
+import { countImageColors, readTags } from './utils.js';
 
 /**
  * @type {Points}
@@ -15,6 +15,7 @@ const folderOptions = gui.addFolder('options');
 const folderControls = gui.addFolder('controls');
 const folderSongs = gui.addFolder('songs');
 const MAXCHARS = 30;
+const size = { x: 8, y: 22 }, offset = -32, atlasPath = 'src/img/inconsolata_regular_8x22.png';
 
 let audio = null;
 let loop = false;
@@ -81,8 +82,7 @@ async function playSong(song) {
 
     points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
 
-    const songNameImg = strToImage(title, atlas, size);
-    await points.setTextureImage('songName', songNameImg);
+    await points.setTextureString('songName', title, atlasPath, size, offset);
 
     let artworkLoaded = 0;
     song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
@@ -192,10 +192,8 @@ async function onCompleteTags(result) {
 
     folderSongs.add(song, 'fn').name(song.name);
     points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
-    // points.setStorageMap('chars', strToCodes(title));
 
-    const songNameImg = strToImage(title, atlas, size);
-    await points.setTextureImage('songName', songNameImg);
+    await points.setTextureString('songName', title, atlasPath, size, offset);
 }
 
 async function onErrorTags(response) {
@@ -380,20 +378,10 @@ points.setUniform('numChars', 12);
 // points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
 points.setStorage('variables', 'Variables');
-await points.setTextureImage('font', './src/img/inconsolata_regular_8x22.png');
 
 
-
-const size = { x: 8, y: 22 };
-const atlas = await loadImage('src/img/inconsolata_regular_8x22.png');
-const messageStringImg = strToImage('Select a song to Play', atlas, size);
-await points.setTextureImage('messageString', messageStringImg);
-
-
-
-const songNameImg = strToImage('Gravity Pull', atlas, size);
-await points.setTextureImage('songName', songNameImg);
-
+await points.setTextureString('messageString', 'Select a song to Play', atlasPath, size, offset);
+await points.setTextureString('songName', 'Gravity Pull', atlasPath, size, offset);
 
 const renderPasses = [
     new RenderPass(vert, frag0, null),
