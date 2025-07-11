@@ -80,8 +80,6 @@ async function playSong(song) {
     audio && audio.pause() && (audio = null);
     audio = points.setAudio('audio', audioUrl, options.volume, false, false);
 
-    points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
-
     await points.setTextureString('songName', title, atlasPath, size, offset);
 
     let artworkLoaded = 0;
@@ -191,7 +189,6 @@ async function onCompleteTags(result) {
     }
 
     folderSongs.add(song, 'fn').name(song.name);
-    points.setUniform('numChars', title.length < MAXCHARS ? title.length : MAXCHARS);
 
     await points.setTextureString('songName', title, atlasPath, size, offset);
 }
@@ -373,8 +370,6 @@ points.setUniform('showMessage', 1);
 points.setUniform('rand', 0);
 points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
-// points.setUniform('somecolor', colors.color2, 'vec3f');
-points.setUniform('numChars', 12);
 // points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
 points.setStorage('variables', 'Variables');
