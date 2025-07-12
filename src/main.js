@@ -14,7 +14,6 @@ const gui = new dat.GUI({ name: 'Points GUI' });
 const folderOptions = gui.addFolder('options');
 const folderControls = gui.addFolder('controls');
 const folderSongs = gui.addFolder('songs');
-const MAXCHARS = 30;
 const size = { x: 8, y: 22 }, offset = -32, atlasPath = 'src/img/inconsolata_regular_8x22.png';
 
 let audio = null;
