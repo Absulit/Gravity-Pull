@@ -1,6 +1,6 @@
 import { fnusin, fusin } from 'points/animation';
 import { GREEN, layer, RED, RGBAFromHSV, WHITE } from 'points/color';
-import { sprite, texturePosition } from 'points/image';
+import { sprite, texture, texturePosition } from 'points/image';
 import { PHI, PI, rotateVector, TAU } from 'points/math';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'points/sdf';
 import { structs } from './structs.js';
@@ -11,6 +11,7 @@ ${structs}
 ${fnusin}
 ${sdfSegment}
 ${sdfLine2}
+${texture}
 ${texturePosition}
 ${sdfCircle}
 ${sdfSquare}
@@ -227,19 +228,25 @@ fn main(
     let charSizeF32 = vec2(f32(charSize.x) / params.screen.x, f32(charSize.y) / params.screen.y);
 
 
+    // let textScale = 2.476 + c0;
     let textScale = 2.476 + c0;
-    let textUVR = uvr / textScale / ratioWidth;
-    let stringMask = texturePosition(songName, textImageSampler, fontPosition, textUVR, false).r;
-    let stringMask2 = texturePosition(songName, textImageSampler, fontPosition, textUVR + .001 / ratioWidth, false).r;
+    let textUVR = (uvr / textScale / ratioWidth) - fontPosition;
+    let stringMask = texture(songName, textImageSampler, textUVR, false).r;
+    let stringMask2 = texture(songName, textImageSampler, textUVR + .001 / ratioWidth, false).r;
+
+    //
+    var debug = sdfLine2(fontPosition, fontPosition + vec2f(0,.1) * ratio, .005, uvr) * RED;
+    //
 
     var messageStringMask = 0.;
     if(params.showMessage == 1.){
         let messageScale = mix(textScale, ratioWidth, isPortrait);
-        let dims:vec2u = textureDimensions(messageString, 0);
-        let dimsF32 = vec2f(dims) * messageScale;
-        let dimWidth = dimsF32.x / params.screen.x * messageScale;
+        let dims = vec2f(textureDimensions(messageString, 0)) * messageScale;
 
-        var messageUVR = ( (uvr - center) + vec2f(dimWidth * .5, 0));
+        let imageWidth = dims / params.screen * ratio; // if you are using uvr you have to multiply by ratio
+        let halfImageWidth = imageWidth * .5;
+
+        var messageUVR = (uvr) - (center - halfImageWidth);
         messageUVR = vec2f(messageUVR.x, messageUVR.y + sin(params.time + messageUVR.x * 10 ) * .01) / messageScale;
         messageStringMask = texturePosition(messageString, textImageSampler, vec2f(), messageUVR, false).r;
     }
