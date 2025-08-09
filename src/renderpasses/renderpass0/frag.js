@@ -1,8 +1,8 @@
-import { fnusin, fusin } from 'animation';
-import { GREEN, layer, RED, RGBAFromHSV, WHITE } from 'color';
-import { sprite, texturePosition } from 'image';
-import { PHI, PI, rotateVector, TAU } from 'math';
-import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'sdf';
+import { fnusin, fusin } from 'points/animation';
+import { GREEN, layer, RED, RGBAFromHSV, WHITE } from 'points/color';
+import { sprite, texturePosition } from 'points/image';
+import { PHI, PI, rotateVector, TAU } from 'points/math';
+import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'points/sdf';
 import { structs } from './structs.js';
 
 const frag = /*wgsl*/`
