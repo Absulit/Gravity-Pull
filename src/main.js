@@ -1,5 +1,4 @@
-import Points from 'points';
-import RenderPass from 'renderpass';
+import Points, { RenderPass } from 'points';
 import frag0 from './renderpasses/renderpass0/frag.js';
 import vert from './renderpasses/renderpass0/vert.js';
 import * as dat from 'datgui';
