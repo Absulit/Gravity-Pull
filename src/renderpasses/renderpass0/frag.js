@@ -1,6 +1,6 @@
 import { fnusin, fusin } from 'points/animation';
 import { GREEN, layer, RED, RGBAFromHSV, WHITE } from 'points/color';
-import { sprite, texture, texturePosition } from 'points/image';
+import { sprite, texture } from 'points/image';
 import { PHI, PI, rotateVector, TAU } from 'points/math';
 import { sdfCircle, sdfLine2, sdfSquare, sdfSegment } from 'points/sdf';
 import { structs } from './structs.js';
@@ -12,7 +12,6 @@ ${fnusin}
 ${sdfSegment}
 ${sdfLine2}
 ${texture}
-${texturePosition}
 ${sdfCircle}
 ${sdfSquare}
 ${rotateVector}
@@ -214,7 +213,7 @@ fn main(
     // let uvrRotate = mix(uvrRotateMix0, uvrRotateMix1, step(.2, c7));
 
     let feedbackUV = ((uvrRotate + center) / fadeRotate) - center;
-    var feedbackColor = texturePosition(feedbackTexture, imageSampler, vec2(), feedbackUV / ratioWidth, false);
+    var feedbackColor = texture(feedbackTexture, imageSampler, feedbackUV, false);
     feedbackColor = mix(feedbackColor, vec4f(), FEEDBACKFADEN);
     feedbackColor = feedbackColor * step(.01, feedbackColor.a);
 
@@ -240,7 +239,7 @@ fn main(
 
     var messageStringMask = 0.;
     if(params.showMessage == 1.){
-        let messageScale = mix(textScale, ratioWidth, isPortrait);
+        let messageScale = mix(textScale, 1/ratioWidth, isPortrait);
         let dims = vec2f(textureDimensions(messageString, 0)) * messageScale;
 
         let imageWidth = dims / params.screen * ratio; // if you are using uvr you have to multiply by ratio
@@ -248,7 +247,7 @@ fn main(
 
         var messageUVR = (uvr) - (center - halfImageWidth);
         messageUVR = vec2f(messageUVR.x, messageUVR.y + sin(params.time + messageUVR.x * 10 ) * .01) / messageScale;
-        messageStringMask = texturePosition(messageString, textImageSampler, vec2f(), messageUVR, false).r;
+        messageStringMask = texture(messageString, textImageSampler, messageUVR, false).r;
     }
 
     let numSides = minNumSides + floor(5 * c7);
