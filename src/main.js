@@ -370,7 +370,7 @@ points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
 // points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
 points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
-points.setStorage('variables', 'Variables');
+points.setStorage('variables', 'Variables', false, GPUShaderStage.FRAGMENT);
 
 
 await points.setTextureString('messageString', 'Select a song to Play', atlasPath, size, offset);
