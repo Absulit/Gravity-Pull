@@ -50,8 +50,6 @@ function clickSong() {
 
 function assingMediaSession(song) {
     if ('mediaSession' in navigator) {
-        console.log(song);
-
         navigator.mediaSession.metadata = new MediaMetadata({
             title: song.title || song.name,
             artist: song.artist,
@@ -81,6 +79,7 @@ async function playSong(song) {
     await points.setTextureString('songName', title, atlasPath, size, offset);
 
     let artworkLoaded = 0;
+
     song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
     song?.artworkColors && (artworkLoaded = 1);
     points.setUniform('artworkLoaded', artworkLoaded);
@@ -369,7 +368,7 @@ points.setUniform('rand', 0);
 points.setUniform('progress', 0);
 points.setUniform('artworkLoaded', 0);
 // points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
-points.setStorageMap('artworkColors', Array(16).fill(1), 'array<vec4f>');
+points.setStorageMap('artworkColors', Array(40).fill(1), 'array<vec4f, 10>');
 points.setStorage('variables', 'Variables', false, GPUShaderStage.FRAGMENT);
 
 
