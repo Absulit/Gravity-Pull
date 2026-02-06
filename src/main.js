@@ -15,6 +15,8 @@ const folderControls = gui.addFolder('controls');
 const folderSongs = gui.addFolder('songs');
 const size = { x: 8, y: 22 }, offset = -32, atlasPath = 'src/img/inconsolata_regular_8x22.png';
 
+points.debug = false;
+
 let audio = null;
 let loop = false;
 let pauseClickTimeout = null;
@@ -381,7 +383,7 @@ const renderPasses = [
 
 if (await points.init(renderPasses)) {
     points.fitWindow = true;
-    update();
+    points.update(update);
 } else {
     const el = document.getElementById('nowebgpu');
     el.classList.toggle('show');
@@ -418,14 +420,11 @@ setInterval(_ => {
     points.setUniform('rand', Math.random());
 }, 10000)
 
-update();
 
 // call `points.update()` methods to render a new frame
 function update() {
     Object.keys(options).forEach(key => points.setUniform(key, options[key]));
     // points.setUniform('somecolor', colors.color2.map(i => i / 255))
-    points.update();
-    requestAnimationFrame(update);
 }
 
 /******************************/
