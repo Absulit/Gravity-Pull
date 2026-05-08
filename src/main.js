@@ -15,6 +15,8 @@ const folderControls = gui.addFolder('controls');
 const folderSongs = gui.addFolder('songs');
 const size = { x: 8, y: 22 }, offset = -32, atlasPath = 'src/img/inconsolata_regular_8x22.png';
 
+const { uniforms, storages } = points;
+
 points.debug = false;
 
 let audio = null;
@@ -32,7 +34,7 @@ const options = {
 const selectedScheme = {
     'Color Scheme': 0, // Default value
 };
-points.setUniform('colorScheme', 0);
+uniforms.colorScheme = 0;
 const colorSchemes = {
     Default: 0,
     Matrix: 1,
@@ -42,7 +44,7 @@ const colorSchemes = {
     Cycle: 5
 }
 folderOptions.add(selectedScheme, 'Color Scheme', colorSchemes).onChange(v => {
-    points.setUniform('colorScheme', v)
+    uniforms.colorScheme = +v;
     saveOption('scheme', v);
 });
 
@@ -70,7 +72,7 @@ async function playSong(song) {
     const { file } = song;
     currentSong = song;
     saveOption('currentSongId', currentSong.id);
-    points.setUniform('showMessage', 0);
+    uniforms.showMessage = 0;
     const name = song?.name || file.name;
     const title = name;
 
@@ -82,9 +84,9 @@ async function playSong(song) {
 
     let artworkLoaded = 0;
 
-    song?.artworkColors && points.setStorageMap('artworkColors', song?.artworkColors.flat());
+    song?.artworkColors && (points.storages.artworkColors = song?.artworkColors.flat());
     song?.artworkColors && (artworkLoaded = 1);
-    points.setUniform('artworkLoaded', artworkLoaded);
+    uniforms.artworkLoaded = artworkLoaded;
     audio.id = song?.id;
 
     assingMediaSession(song);
@@ -95,8 +97,7 @@ async function playSong(song) {
 }
 
 function onTimeUpdate() {
-    const progress = audio.currentTime / audio.duration;
-    points.setUniform('progress', progress);
+    uniforms.progress = audio.currentTime / audio.duration;
 }
 
 function loadSong() {
@@ -160,8 +161,8 @@ async function onCompleteTags(result) {
         artworkColors = await countImageColors(artworkImageUrl);
         song.artworkImageUrl = artworkImageUrl;
         song.artworkColors = artworkColors;
-        points.setStorageMap('artworkColors', artworkColors.flat());
-        points.setUniform('artworkLoaded', 1);
+        storages.artworkColors = artworkColors.flat();
+        uniforms.artworkLoaded = 1;
 
     } else {
         console.log('No album art found.');
@@ -306,7 +307,7 @@ console.log(currentSongId);
 
 if (scheme) {
     selectedScheme['Color Scheme'] = scheme;
-    points.setUniform('colorScheme', scheme)
+    uniforms.colorScheme = +scheme;
     folderOptions.updateDisplay();
 }
 
@@ -336,7 +337,7 @@ songsFromDB.forEach(item => {
 
 let volumeSlider = null;
 Object.keys(options).forEach(key => {
-    points.setUniform(key, options[key]);
+    uniforms[key] = options[key];
     if (key == 'volume') {
         volumeSlider = folderOptions.add(options, key, 0, 1, .0001).name(key);
     } else {
@@ -365,13 +366,14 @@ points.setTexture2d('feedbackTexture', true);
 
 audio = points.setAudio('audio', '', options.volume, loop, false); // TODO returl null if empty or null is passed
 
-points.setUniform('showMessage', 1);
-points.setUniform('rand', 0);
-points.setUniform('progress', 0);
-points.setUniform('artworkLoaded', 0);
+uniforms.showMessage = 1;
+uniforms.rand = 0;
+uniforms.progress = 0;
+uniforms.artworkLoaded = 0;
+
 // points.setStorageMap('chars', strToCodes('Gravity Pull'), 'array<f32>')// TODO: setStorageMap doesn't work with u32 wrong sized
-points.setStorageMap('artworkColors', Array(40).fill(1), 'array<vec4f, 10>');
-points.setStorage('variables', 'Variables', false, GPUShaderStage.FRAGMENT);
+storages.artworkColors.setType('array<vec4f, 10>').setValue(Array(40).fill(1))
+storages.variables.setType('Variables').setShaderStage(GPUShaderStage.FRAGMENT);
 
 
 await points.setTextureString('messageString', 'Select a song to Play', atlasPath, size, offset);
@@ -417,13 +419,13 @@ points.canvas.addEventListener('dblclick', _ => {
 
 setInterval(_ => {
     console.log('---- 10s');
-    points.setUniform('rand', Math.random());
+    uniforms.rand = Math.random();
 }, 10000)
 
 
 // call `points.update()` methods to render a new frame
 function update() {
-    Object.keys(options).forEach(key => points.setUniform(key, options[key]));
+    Object.keys(options).forEach(key => uniforms[key] = options[key]);
     // points.setUniform('somecolor', colors.color2.map(i => i / 255))
 }
 
